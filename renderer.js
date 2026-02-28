@@ -141,27 +141,31 @@ function renderAwards() {
 // ===============================
 
 async function loadAwards() {
-console.log("DV enviado:", JSON.stringify(config.dv));
+
   try {
 
-    const newAwards =
-      await ipcRenderer.invoke("get-awards", config);
+    const response =
+      await ipcRenderer.invoke(
+        "get-awards",
+        config
+      );
 
-    // evitar rerender innecesario
-    if (newAwards.length !== awards.length) {
-
-      awards = newAwards;
-
-      console.log("Premios actualizados");
-
-      renderAwards();
+    if (response?.error) {
+      console.error(response.message);
+      return;
     }
 
+    awards = response;
+
+    renderAwards();
+
   } catch (err) {
-    console.error("Error cargando premios:", err);
+    console.error(
+      "Error cargando premios:",
+      err
+    );
   }
 }
-
 
 // ===============================
 // AUTO REFRESH PREMIOS
@@ -185,16 +189,6 @@ function startAwardsAutoRefresh() {
 
   }, 5000);
 }
-
-
-// ===============================
-// INIT
-// ===============================
-
-startAwardsAutoRefresh();
-
-renderHistory();
-
 
 // ===============================
 // Twitch IRC
@@ -1071,9 +1065,11 @@ function sendChatMessage(message) {
 
 (async () => {
 
-  await loadConfig();
+  await loadConfig(); // 🔥 SIEMPRE PRIMERO
 
-  const historyPath = path.join(userPath,"history.json");
+  const historyPath =
+    path.join(userPath,"history.json");
+
   if (fs.existsSync(historyPath)) {
     winners = JSON.parse(
       fs.readFileSync(historyPath,"utf-8")
@@ -1082,16 +1078,22 @@ function sendChatMessage(message) {
 
   DEBUG_MODE = config.debug || false;
 
-  await loadLanguage(config.language || "es");
+  await loadLanguage(
+    config.language || "es"
+  );
 
+  // ✅ AHORA config YA EXISTE
   startAwardsAutoRefresh();
+
   renderHistory();
-  
+
   if (!DEBUG_MODE) {
-  connectTwitch();
-} else {
-  console.log("DEBUG MODE activo - Twitch deshabilitado");
-}
+    connectTwitch();
+  } else {
+    console.log(
+      "DEBUG MODE activo"
+    );
+  }
 
 })();
 
@@ -1606,62 +1608,52 @@ async () => {
 
   try {
 
-    const result =
+    const response =
       await ipcRenderer.invoke(
         "get-awards",
         config
       );
 
-    if (!result.success) {
-      throw new Error("network");
+    // ❌ error real
+    if (response?.error) {
+
+      status.textContent =
+        "❌ Error conexión API";
+
+      status.className =
+        "api-status api-error";
+
+      return;
     }
 
-    switch(result.code){
+    // ✅ API responde aunque no haya premios
+    if (Array.isArray(response)) {
 
-      case 1:
-        if(result.awards.length === 0){
-          status.innerText =
-            "API conectada (sin premios)";
-        }else{
-          status.innerText =
-            "API conectada";
-        }
-        status.className =
-          "api-status api-ok";
-        break;
+      if (response.length > 0) {
 
-      case 0:
-        status.innerText =
-          "Acción inválida";
-        status.className =
-          "api-status api-warning";
-        break;
+        status.textContent =
+          "✅ API conectada (premios disponibles)";
 
-      case -100:
-        status.innerText =
-          "Parámetros incorrectos";
-        status.className =
-          "api-status api-error";
-        break;
+      } else {
 
-      case -101:
-        status.innerText =
-          "Autenticación incorrecta";
-        status.className =
-          "api-status api-error";
-        break;
+        status.textContent =
+          "✅ API conectada (sin premios)";
+      }
 
-      default:
-        status.innerText =
-          "Respuesta desconocida";
-        status.className =
-          "api-status api-error";
+      status.className =
+        "api-status api-ok";
+
+      return;
     }
 
-  } catch {
+    throw new Error("Respuesta inválida");
 
-    status.innerText =
-      "Error conexión API";
+  } catch (err) {
+
+    console.error(err);
+
+    status.textContent =
+      "❌ Error conexión API";
 
     status.className =
       "api-status api-error";

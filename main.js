@@ -284,20 +284,31 @@ ipcMain.handle(
 
       const data = JSON.parse(text);
 
-      return {
-        success: true,
-        code: data.result ?? 1,
-        awards: data.awards || []
-      };
+      // ===============================
+      // VALIDACIÓN API MU
+      // ===============================
+
+      if (data.result === -101)
+        throw new Error("AUTH_ERROR");
+
+      if (data.result === -100)
+        throw new Error("BAD_PARAMS");
+
+      if (data.result === 0)
+        throw new Error("INVALID_ACTION");
+
+      // ✅ éxito aunque no haya premios
+      return Array.isArray(data.awards)
+        ? data.awards
+        : [];
 
     } catch (err) {
 
       console.error("API MU error:", err);
 
       return {
-        success:false,
-        code:"NETWORK_ERROR",
-        awards:[]
+        error: true,
+        message: err.message
       };
     }
 });
