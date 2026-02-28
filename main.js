@@ -18,7 +18,6 @@ let currentStreamMode = null;
 let switchingWindow = false;
 let cachedParticipants = [];
 
-
 /* =====================================================
    USER FILES (BUILD SAFE)
 =====================================================*/
@@ -136,18 +135,19 @@ createWindow(streamMode);
       mainWindow?.webContents.toggleDevTools();
     }
   );
-
 });
 
 
 /* =====================================================
    SAFE EXIT
 =====================================================*/
-app.on("window-all-closed",()=>{
+app.on("window-all-closed", () => {
 
-  if(process.platform!=="darwin")
+  // ✅ NO cerrar mientras cambiamos modo
+  if (switchingWindow) return;
+
+  if (process.platform !== "darwin")
     app.quit();
-
 });
 
 app.on("will-quit",()=>{
@@ -181,15 +181,13 @@ ipcMain.handle(
   async (_, enabled) => {
 
     if (!mainWindow) return;
+    if (switchingWindow) return;
 
-    // evitar recrear si ya está igual
-    if (currentStreamMode === enabled)
-      return;
-
+    switchingWindow = true;
     currentStreamMode = enabled;
 
+    const bounds = mainWindow.getBounds();
     const oldWindow = mainWindow;
-    const bounds = oldWindow.getBounds();
 
     const newWindow = new BrowserWindow({
 
@@ -198,52 +196,43 @@ ipcMain.handle(
       x: bounds.x,
       y: bounds.y,
 
-      frame: false,
+      frame:false,
       transparent: enabled,
 
       backgroundColor:
-        enabled
-          ? "#00000000"
-          : "#0b0b0b",
+        enabled ? "#00000000" : "#0b0b0b",
 
-      resizable: true,
-      movable: true,
-      minimizable: true,
-      closable: true,
+      resizable:true,
+      movable:true,
+      minimizable:true,
+      closable:true,
 
-      titleBarStyle: "hidden",
+      titleBarStyle:"hidden",
 
-      webPreferences: {
-        nodeIntegration: true,
-        contextIsolation: false
+      webPreferences:{
+        nodeIntegration:true,
+        contextIsolation:false
       }
     });
 
     Menu.setApplicationMenu(null);
 
-    newWindow.loadFile("index.html");
+    await newWindow.loadFile("index.html");
 
-    // ✅ EVENTO CORRECTO
-    newWindow.webContents.once(
-      "did-finish-load",
-      () => {
+    mainWindow = newWindow;
 
-        mainWindow = newWindow;
-
-        mainWindow.setAlwaysOnTop(
-          enabled,
-          "screen-saver"
-        );
-
-        // ✅ destruir SIEMPRE la vieja
-        if (oldWindow && !oldWindow.isDestroyed()) {
-          oldWindow.destroy();
-        }
-      }
+    mainWindow.setAlwaysOnTop(
+      enabled,
+      "screen-saver"
     );
+
+    // ✅ destruir después
+    if (oldWindow && !oldWindow.isDestroyed())
+      oldWindow.destroy();
+
+    switchingWindow = false;
   }
 );
-
 
 /* =====================================================
    USER DATA PATH
@@ -252,6 +241,9 @@ ipcMain.handle(
   "get-user-path",
   ()=>app.getPath("userData")
 );
+ipcMain.on("overlay-update", (_, data) => {
+  overlayState = data;
+});
 
 /* =====================================================
    PARTICIPANTS CACHE (STREAM SAFE)
@@ -311,4 +303,8 @@ ipcMain.handle(
         message: err.message
       };
     }
+});
+
+ipcMain.on("overlay-update", (_, data) => {
+  overlayState = data;
 });

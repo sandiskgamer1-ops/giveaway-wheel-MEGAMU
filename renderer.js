@@ -196,15 +196,26 @@ function startAwardsAutoRefresh() {
 
 function connectTwitch() {
 
-  twitchSocket = new WebSocket("wss://irc-ws.chat.twitch.tv:443");
+  console.log("COMMAND CONFIG:", config.command);
+
+  twitchSocket =
+    new WebSocket("wss://irc-ws.chat.twitch.tv:443");
+
   const socket = twitchSocket;
 
   socket.onopen = () => {
-    socket.send("CAP REQ :twitch.tv/tags twitch.tv/commands twitch.tv/membership");
+
+    socket.send(
+      "CAP REQ :twitch.tv/tags twitch.tv/commands twitch.tv/membership"
+    );
+
     socket.send(`PASS oauth:${config.oauth}`);
     socket.send(`NICK ${config.channel}`);
     socket.send(`JOIN #${config.channel}`);
+
+    console.log("✅ Conectado a Twitch IRC");
   };
+
 
   socket.onmessage = (event) => {
 
@@ -212,6 +223,7 @@ function connectTwitch() {
 
     lines.forEach(line => {
 
+      // KEEP ALIVE
       if (line.startsWith("PING")) {
         socket.send("PONG :tmi.twitch.tv");
         return;
@@ -224,22 +236,57 @@ function connectTwitch() {
 
       const { user, message, badges } = parsed;
 
-      if (
-  message.toLowerCase().trim() ===
-  config.command.toLowerCase().trim()
-) {
-  addParticipant(user, badges);
-}
+      // ✅ DEBUG REAL
+      console.log("CHAT:", user, "→", message);
 
-      if (waitingForGameName && user === currentWinner && message.startsWith("!")) {
-        const name = message.substring(1).trim();
+      const cleanMessage =
+        (message || "")
+          .trim()
+          .toLowerCase();
+
+      const joinCommand =
+        (config.command || "")
+          .trim()
+          .toLowerCase();
+
+      // ===============================
+      // JOIN COMMAND
+      // ===============================
+      if (cleanMessage === joinCommand) {
+        addParticipant(user, badges);
+      }
+
+      // ===============================
+      // INGAME NAME
+      // ===============================
+      if (
+        waitingForGameName &&
+        user === currentWinner &&
+        message.startsWith("!")
+      ) {
+
+        const name =
+          message.substring(1).trim();
+
         if (name.length > 0) {
+
           winnerGameName = name;
+
           stopCountdown();
           showGameName(name);
         }
       }
+
     });
+  };
+
+
+  socket.onerror = err => {
+    console.error("❌ Twitch socket error:", err);
+  };
+
+  socket.onclose = () => {
+    console.log("⚠ Twitch desconectado");
   };
 }
 
@@ -533,17 +580,34 @@ function startRoulette() {
   drawState = "spinningUser";
 
   // ?? 1. Elegir ganador UNA sola vez
-  let winner;
+let winner = null;
 
 if (DEBUG_MODE && forcedWinner) {
-  winner = participants.find(p => p.user === forcedWinner);
-} else {
+
+  const debugPick =
+    participants.find(
+      p => p.user === forcedWinner
+    );
+
+  if (debugPick) {
+    winner = debugPick;
+  }
+}
+
+// fallback SIEMPRE
+if (!winner) {
   winner = weightedRandom(participants);
 }
   if (!winner) {
     drawState = "idle";
     return;
   }
+
+if (!winner) {
+  console.warn("Winner inválido");
+  drawState = "idle";
+  return;
+}
 
   const track = document.getElementById("rouletteTrack");
   const container = document.querySelector(".roulette-container");
@@ -582,7 +646,7 @@ if (DEBUG_MODE && forcedWinner) {
   div.classList.add("roulette-item");
   div.textContent = p.user;
 
-  // Destacar segÃÂ¨ÃÂ²n rol
+  // Destacar segun rol
   if (p.userBadges) {
     if (p.userBadges.includes("vip")) {
       div.classList.add("roulette-vip");
@@ -974,6 +1038,11 @@ function showGameName(name) {
 // ===============================
 
 function finishDraw(prize) {
+	
+	overlayState = {
+  winner: currentWinner,
+  prize: prize.name
+};
 
   if (!prize) return;
 
@@ -1015,13 +1084,37 @@ function finishDraw(prize) {
     </div>
   `);
 
-  document.getElementById("resetBtn").onclick = () => {
-    screen.classList.add("hidden");
-    winnerContainer.innerHTML = "";
-    currentWinner = null;
-    winnerGameName = null;
-    drawState = "idle";
-  };
+  applyTranslations();
+
+requestAnimationFrame(()=>{
+  setTimeout(()=>{
+    launchConfetti();
+  },80);
+});
+
+document.getElementById("resetBtn").onclick = () => {
+
+  stopConfetti(); // ✅ LIMPIA GPU LAYER
+
+  const screen =
+    document.getElementById("winnerScreen");
+
+  screen.classList.add("hidden");
+
+  const canvas =
+    document.getElementById("confettiCanvas");
+
+  if(canvas){
+    canvas.width = 0;
+    canvas.height = 0;
+  }
+
+  winnerContainer.innerHTML = "";
+
+  currentWinner = null;
+  winnerGameName = null;
+  drawState = "idle";
+};
   
   applyTranslations();
 }
@@ -1169,36 +1262,35 @@ updateStreamButton();
 // ===============================
 // CLICK STREAM MODE
 // ===============================
-streamBtn?.addEventListener(
-  "click",
-  async ()=>{
 
-    try{
+let streamBusy = false;
 
-      ipcRenderer.send(
-        "save-participants",
-        participants
-      );
+streamBtn?.addEventListener("click", async () => {
 
-      streamMode = !streamMode;
+  if (streamBusy) return;
 
-      config.streamMode = streamMode;
+  streamBusy = true;
 
-      fs.writeFileSync(
-        path.join(userPath,"config.json"),
-        JSON.stringify(config,null,2)
-      );
+  ipcRenderer.send(
+    "save-participants",
+    participants
+  );
 
-      updateStreamButton();
+  streamMode = !streamMode;
 
-      await ipcRenderer.invoke(
-        "toggle-stream-mode",
-        streamMode
-      );
+  config.streamMode = streamMode;
 
-    }catch(err){
-      console.error(err);
-    }
+  fs.writeFileSync(
+    path.join(userPath,"config.json"),
+    JSON.stringify(config,null,2)
+  );
+
+  updateStreamButton();
+
+  await ipcRenderer.invoke(
+    "toggle-stream-mode",
+    streamMode
+  );
 });
 
   // ===============================
@@ -1766,3 +1858,140 @@ window.addEventListener("keydown", (e) => {
   }
 
 });
+
+///CONFETTI Winner
+
+let confettiParticles = [];
+let confettiRunning = false;
+let confettiRAF = null;
+
+function launchConfetti(){
+
+  const canvas =
+    document.getElementById("confettiCanvas");
+
+  if(!canvas) return;
+
+  const ctx =
+    canvas.getContext("2d");
+
+  // ✅ evitar doble lanzamiento
+  if(confettiRunning) return;
+
+  // ✅ esperar a que Electron renderice
+  requestAnimationFrame(()=>{
+
+    const rect =
+      canvas.getBoundingClientRect();
+
+    if(rect.width === 0 || rect.height === 0){
+      console.warn("Confetti canvas size 0");
+      return;
+    }
+
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    confettiParticles = [];
+
+    for(let i=0;i<150;i++){
+      confettiParticles.push({
+        x: Math.random()*canvas.width,
+        y: Math.random()*-canvas.height,
+        size: Math.random()*8+4,
+        speedY: Math.random()*3+2,
+        speedX: Math.random()*2-1,
+        rotation: Math.random()*360,
+
+        // ✅ color fijo (NO recalcular cada frame)
+        color:`hsl(${Math.random()*360},80%,60%)`
+      });
+    }
+
+    confettiRunning = true;
+
+    animateConfetti(ctx,canvas);
+
+    // ✅ auto stop limpio
+    setTimeout(()=>{
+      confettiRunning=false;
+    },5000);
+
+  });
+}
+
+function animateConfetti(ctx,canvas){
+
+  if(!confettiRunning){
+    ctx.clearRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    cancelAnimationFrame(confettiRAF);
+    confettiRAF = null;
+    return;
+  }
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  confettiParticles.forEach(p=>{
+
+    p.y += p.speedY;
+    p.x += p.speedX;
+    p.rotation += 5;
+
+    // reciclar partículas
+    if(p.y > canvas.height){
+      p.y = -20;
+      p.x = Math.random()*canvas.width;
+    }
+
+    ctx.save();
+
+    ctx.translate(p.x,p.y);
+    ctx.rotate(p.rotation*Math.PI/180);
+
+    ctx.fillStyle = p.color;
+
+    ctx.fillRect(
+      -p.size/2,
+      -p.size/2,
+      p.size,
+      p.size
+    );
+
+    ctx.restore();
+  });
+
+  confettiRAF =
+    requestAnimationFrame(
+      ()=>animateConfetti(ctx,canvas)
+    );
+}
+
+function stopConfetti(){
+
+  confettiRunning = false;
+
+  const canvas =
+    document.getElementById("confettiCanvas");
+
+  if(!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+}
