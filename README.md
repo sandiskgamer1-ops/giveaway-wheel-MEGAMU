@@ -1,6 +1,14 @@
 # Giveaway Wheel – MEGAMU Edition
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat&logo=paypal)](https://paypal.me/josethemou)
+## ❤️ Support the project
+
+If this tool helps your streams, you can support future updates:
+
+<p align="center">
+  <a href="https://paypal.me/josethemou">
+    <img src="https://img.shields.io/badge/Donate%20via-PayPal-ffdd00?style=for-the-badge&logo=paypal&logoColor=black">
+  </a>
+</p>
 
 A lightweight giveaway wheel designed for Twitch streams, focused on simplicity, transparency support for OBS, and fast interaction during live events.
 
