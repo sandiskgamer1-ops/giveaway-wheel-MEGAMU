@@ -1,0 +1,63 @@
+{
+  "participants": "Participantes",
+  "draw": "Sortear",
+  "new_draw": "Novo sorteio",
+  "history": "Histórico de Ganhadores",
+  "clear_history": "Limpar histórico",
+  "available_prizes": "Prêmios Disponíveis",
+  "settings": "Configurações",
+  "save": "Salvar",
+  "back": "Voltar",
+  "enable_debug": "Ativar modo DEBUG",
+
+  "winner.title": "Ganhador",
+  "winner": "Ganhador",
+
+  "winner.instruction": "Escreva <strong>!SeuNomeNoJogo</strong> no chat",
+  "write_ingame": "Escreva <strong>!SeuNomeNoJogo</strong> no chat",
+
+  "winner.confirmed": "Ganhador Confirmado",
+  "winner_confirmed": "Ganhador Confirmado",
+
+  "winner.ingame_label": "Nome In-Game",
+  "ingame_name": "Nome In-Game",
+  "ingame_label": "In-Game:",
+
+  "winner.choose_prize": "Escolher prêmio",
+  "choose_prize": "Escolher prêmio",
+
+  "winner.drawing_prize": "Sorteando prêmio...",
+  "drawing_prize": "Sorteando prêmio...",
+  "drawing_prize_title": "SORTEANDO PRÊMIO",
+
+  "winner_final": "GANHADOR",
+  "draw_again": "Voltar a sortear",
+
+  "common.copy": "Copiar",
+  "copy": "Copiar",
+
+  "common.show": "Mostrar",
+  "show": "Mostrar",
+
+  "common.hide": "Ocultar",
+  "hide": "Ocultar",
+
+  "history.empty": "Nenhum sorteio ainda",
+  "no_draws": "Nenhum sorteio ainda",
+
+  "chat.waiting_name": "@user escreva !SeuNomeNoJogo (30 segundos)",
+  "chat.disqualified": "@user desclassificado por não responder",
+  "chat.won_prize": "@user ganhou prize",
+
+  "api.twitch_ok": "✔ Twitch IRC conectado com sucesso",
+  "twitch_connected": "✔ Twitch IRC conectado com sucesso",
+
+  "api.twitch_error": "✖ Twitch NÃO conectado",
+  "twitch_not_connected": "✖ Twitch NÃO conectado",
+
+  "api.mu_ok": "✔ API MU conectada com sucesso",
+  "api_connected": "✔ API MU conectada com sucesso",
+
+  "api.mu_error": "✖ Erro ao conectar API MU",
+  "api_error": "✖ Erro ao conectar API MU"
+}

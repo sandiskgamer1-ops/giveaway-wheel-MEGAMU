@@ -1,0 +1,63 @@
+{
+  "participants": "Uczestnicy",
+  "draw": "Losuj",
+  "new_draw": "Nowe losowanie",
+  "history": "Historia zwycięzców",
+  "clear_history": "Wyczyść historię",
+  "available_prizes": "Dostępne nagrody",
+  "settings": "Ustawienia",
+  "save": "Zapisz",
+  "back": "Wróć",
+  "enable_debug": "Włącz tryb DEBUG",
+
+  "winner.title": "Zwycięzca",
+  "winner": "Zwycięzca",
+
+  "winner.instruction": "Napisz <strong>!TwojaNazwaWGrze</strong> na czacie",
+  "write_ingame": "Napisz <strong>!TwojaNazwaWGrze</strong> na czacie",
+
+  "winner.confirmed": "Zwycięzca potwierdzony",
+  "winner_confirmed": "Zwycięzca potwierdzony",
+
+  "winner.ingame_label": "Nazwa w grze",
+  "ingame_name": "Nazwa w grze",
+  "ingame_label": "W grze:",
+
+  "winner.choose_prize": "Wybierz nagrodę",
+  "choose_prize": "Wybierz nagrodę",
+
+  "winner.drawing_prize": "Losowanie nagrody...",
+  "drawing_prize": "Losowanie nagrody...",
+  "drawing_prize_title": "LOSOWANIE NAGRODY",
+
+  "winner_final": "ZWYCIĘZCA",
+  "draw_again": "Losuj ponownie",
+
+  "common.copy": "Kopiuj",
+  "copy": "Kopiuj",
+
+  "common.show": "Pokaż",
+  "show": "Pokaż",
+
+  "common.hide": "Ukryj",
+  "hide": "Ukryj",
+
+  "history.empty": "Brak losowań",
+  "no_draws": "Brak losowań",
+
+  "chat.waiting_name": "@user napisz !TwojaNazwaWGrze (30 sekund)",
+  "chat.disqualified": "@user zdyskwalifikowany za brak odpowiedzi",
+  "chat.won_prize": "@user wygrał prize",
+
+  "api.twitch_ok": "✔ Połączono z Twitch IRC",
+  "twitch_connected": "✔ Połączono z Twitch IRC",
+
+  "api.twitch_error": "✖ Twitch NIE jest połączony",
+  "twitch_not_connected": "✖ Twitch NIE jest połączony",
+
+  "api.mu_ok": "✔ Połączono z API MU",
+  "api_connected": "✔ Połączono z API MU",
+
+  "api.mu_error": "✖ Błąd połączenia z API MU",
+  "api_error": "✖ Błąd połączenia z API MU"
+}

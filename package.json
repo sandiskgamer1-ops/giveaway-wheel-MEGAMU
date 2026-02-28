@@ -1,0 +1,76 @@
+{
+  "name": "Megamu-Sorteos",
+  "version": "1.0.0",
+  "description": "Giveaway Wheel for Twitch streams",
+  "author": "josethemou",
+  "main": "main.js",
+
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux AppImage"
+  },
+
+  "build": {
+    "appId": "com.jose.ruedatwitch",
+    "productName": "Giveaway Wheel - By Josethemou",
+    "asar": true,
+
+    "directories": {
+      "output": "dist"
+    },
+
+    "files": [
+      "main.js",
+      "renderer.js",
+      "index.html",
+      "package.json",
+      "assets/**/*",
+      "locales/**/*",
+      "!dist/*",
+      "!config.json",
+      "!history.json",
+      "!*.log"
+    ],
+
+    "extraResources": [
+      {
+        "from": "assets",
+        "to": "assets"
+      },
+      {
+        "from": "locales",
+        "to": "locales"
+      }
+    ],
+
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+
+    "linux": {
+      "target": "AppImage",
+      "category": "Game"
+    }
+  },
+
+  "devDependencies": {
+    "electron": "^40.6.1",
+    "electron-builder": "^26.8.1"
+  },
+
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}

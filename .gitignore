@@ -1,0 +1,22 @@
+# dependencies
+node_modules/
+
+# builds
+dist/
+release/
+*.AppImage
+*.exe
+
+# electron
+*.asar
+
+# logs
+*.log
+
+# user data
+config.json
+history.json
+
+# system
+.DS_Store
+Thumbs.db

@@ -1,0 +1,63 @@
+{
+  "participants": "Participants",
+  "draw": "Draw",
+  "new_draw": "New Draw",
+  "history": "Winner History",
+  "clear_history": "Clear History",
+  "available_prizes": "Available Prizes",
+  "settings": "Settings",
+  "save": "Save",
+  "back": "Back",
+  "enable_debug": "Enable DEBUG Mode",
+
+  "winner.title": "Winner",
+  "winner": "Winner",
+
+  "winner.instruction": "Type <strong>!YourInGameName</strong> in chat",
+  "write_ingame": "Type <strong>!YourInGameName</strong> in chat",
+
+  "winner.confirmed": "Winner Confirmed",
+  "winner_confirmed": "Winner Confirmed",
+
+  "winner.ingame_label": "In-Game Name",
+  "ingame_name": "In-Game Name",
+  "ingame_label": "In-Game:",
+
+  "winner.choose_prize": "Choose Prize",
+  "choose_prize": "Choose Prize",
+
+  "winner.drawing_prize": "Drawing prize...",
+  "drawing_prize": "Drawing prize...",
+  "drawing_prize_title": "DRAWING PRIZE",
+
+  "winner_final": "WINNER",
+  "draw_again": "Draw again",
+
+  "common.copy": "Copy",
+  "copy": "Copy",
+
+  "common.show": "Show",
+  "show": "Show",
+
+  "common.hide": "Hide",
+  "hide": "Hide",
+
+  "history.empty": "No draws yet",
+  "no_draws": "No draws yet",
+
+  "chat.waiting_name": "@user type !YourInGameName (30 seconds)",
+  "chat.disqualified": "@user disqualified for not responding",
+  "chat.won_prize": "@user won prize",
+
+  "api.twitch_ok": "✔ Twitch IRC connected successfully",
+  "twitch_connected": "✔ Twitch IRC connected successfully",
+
+  "api.twitch_error": "✖ Twitch NOT connected",
+  "twitch_not_connected": "✖ Twitch NOT connected",
+
+  "api.mu_ok": "✔ API MU connected successfully",
+  "api_connected": "✔ API MU connected successfully",
+
+  "api.mu_error": "✖ Error connecting to API MU",
+  "api_error": "✖ Error connecting to API MU"
+}

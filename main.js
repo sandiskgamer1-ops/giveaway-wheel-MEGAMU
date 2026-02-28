@@ -1,0 +1,284 @@
+/**
+ * main.js — FINAL STABLE BUILD VERSION
+ */
+
+const {
+  app,
+  BrowserWindow,
+  ipcMain,
+  Menu,
+  globalShortcut
+} = require("electron");
+
+const path = require("path");
+const fs = require("fs");
+
+let mainWindow = null;
+let currentStreamMode = null;
+let switchingWindow = false;
+
+
+/* =====================================================
+   USER FILES (BUILD SAFE)
+=====================================================*/
+function ensureUserFiles(){
+
+  const userData = app.getPath("userData");
+
+  const configPath =
+    path.join(userData,"config.json");
+
+  const historyPath =
+    path.join(userData,"history.json");
+
+  // CONFIG
+  if(!fs.existsSync(configPath)){
+
+    const defaultConfig = {
+      oauth:"",
+      channel:"",
+      command:"!join",
+      language:"es",
+      streamMode:false,
+      debug:false,
+      dv:"",
+      apiKey:""
+    };
+
+    fs.writeFileSync(
+      configPath,
+      JSON.stringify(defaultConfig,null,2)
+    );
+  }
+
+  // HISTORY
+  if(!fs.existsSync(historyPath)){
+    fs.writeFileSync(
+      historyPath,
+      JSON.stringify([],null,2)
+    );
+  }
+}
+
+
+/* =====================================================
+   CREATE WINDOW
+=====================================================*/
+function createWindow(
+  transparent = false,
+  bounds = null
+){
+
+  mainWindow = new BrowserWindow({
+
+    width: bounds?.width || 1400,
+    height: bounds?.height || 900,
+    x: bounds?.x,
+    y: bounds?.y,
+
+    frame:false,
+    transparent,
+
+    backgroundColor:
+      transparent
+        ? "#00000000"
+        : "#0b0b0b",
+
+    resizable:true,
+    movable:true,
+    minimizable:true,
+    closable:true,
+
+    titleBarStyle:"hidden",
+
+    webPreferences:{
+      nodeIntegration:true,
+      contextIsolation:false
+    }
+  });
+
+  Menu.setApplicationMenu(null);
+
+  mainWindow.loadFile("index.html");
+}
+
+
+/* =====================================================
+   APP READY
+=====================================================*/
+app.whenReady().then(()=>{
+
+  ensureUserFiles();
+
+  const userData = app.getPath("userData");
+const configPath = path.join(userData,"config.json");
+
+let streamMode = false;
+
+try{
+  const cfg = JSON.parse(
+    fs.readFileSync(configPath,"utf-8")
+  );
+  streamMode = cfg.streamMode || false;
+}catch{}
+
+currentStreamMode = streamMode;
+
+createWindow(streamMode);
+
+  // DEVTOOLS SHORTCUT
+  globalShortcut.unregisterAll();
+
+  globalShortcut.register(
+    "CommandOrControl+Shift+I",
+    ()=>{
+      mainWindow?.webContents.toggleDevTools();
+    }
+  );
+
+});
+
+
+/* =====================================================
+   SAFE EXIT
+=====================================================*/
+app.on("window-all-closed",()=>{
+
+  if(process.platform!=="darwin")
+    app.quit();
+
+});
+
+app.on("will-quit",()=>{
+  globalShortcut.unregisterAll();
+});
+
+
+/* =====================================================
+   WINDOW CONTROLS
+=====================================================*/
+ipcMain.on(
+  "window-minimize",
+  ()=>mainWindow?.minimize()
+);
+
+ipcMain.on(
+  "window-close",
+  ()=>{
+    if(mainWindow &&
+       !mainWindow.isDestroyed())
+      mainWindow.destroy();
+  }
+);
+
+
+/* =====================================================
+   STREAM MODE (NO LOOP / NO MULTI WINDOWS)
+=====================================================*/
+ipcMain.handle(
+  "toggle-stream-mode",
+  async (_, enabled) => {
+
+    if (!mainWindow) return;
+
+    // evitar recrear si ya está igual
+    if (currentStreamMode === enabled)
+      return;
+
+    currentStreamMode = enabled;
+
+    const oldWindow = mainWindow;
+    const bounds = oldWindow.getBounds();
+
+    const newWindow = new BrowserWindow({
+
+      width: bounds.width,
+      height: bounds.height,
+      x: bounds.x,
+      y: bounds.y,
+
+      frame: false,
+      transparent: enabled,
+
+      backgroundColor:
+        enabled
+          ? "#00000000"
+          : "#0b0b0b",
+
+      resizable: true,
+      movable: true,
+      minimizable: true,
+      closable: true,
+
+      titleBarStyle: "hidden",
+
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false
+      }
+    });
+
+    Menu.setApplicationMenu(null);
+
+    newWindow.loadFile("index.html");
+
+    // ✅ EVENTO CORRECTO
+    newWindow.webContents.once(
+      "did-finish-load",
+      () => {
+
+        mainWindow = newWindow;
+
+        mainWindow.setAlwaysOnTop(
+          enabled,
+          "screen-saver"
+        );
+
+        // ✅ destruir SIEMPRE la vieja
+        if (oldWindow && !oldWindow.isDestroyed()) {
+          oldWindow.destroy();
+        }
+      }
+    );
+  }
+);
+
+
+/* =====================================================
+   USER DATA PATH
+=====================================================*/
+ipcMain.handle(
+  "get-user-path",
+  ()=>app.getPath("userData")
+);
+
+
+/* =====================================================
+   API MU
+=====================================================*/
+ipcMain.handle(
+  "get-awards",
+  async(_,config)=>{
+
+    try{
+
+      const url =
+        `https://www.megamu.net/dvapi.php?dv=${config.dv}&key=${config.apiKey}&action=getawards`;
+
+      const response = await fetch(url);
+      const text = await response.text();
+
+      const data = JSON.parse(text);
+
+      return data.awards || [];
+
+    }catch(err){
+
+      console.error(
+        "API MU error:",
+        err
+      );
+
+      return [];
+    }
+});

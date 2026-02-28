@@ -1,0 +1,63 @@
+{
+  "participants": "Người tham gia",
+  "draw": "Bốc thăm",
+  "new_draw": "Lượt mới",
+  "history": "Lịch sử người thắng",
+  "clear_history": "Xóa lịch sử",
+  "available_prizes": "Giải thưởng có sẵn",
+  "settings": "Cài đặt",
+  "save": "Lưu",
+  "back": "Quay lại",
+  "enable_debug": "Bật chế độ DEBUG",
+
+  "winner.title": "Người chiến thắng",
+  "winner": "Người chiến thắng",
+
+  "winner.instruction": "Hãy viết <strong>!TenCuaBanTrongGame</strong> vào chat",
+  "write_ingame": "Hãy viết <strong>!TenCuaBanTrongGame</strong> vào chat",
+
+  "winner.confirmed": "Xác nhận người thắng",
+  "winner_confirmed": "Xác nhận người thắng",
+
+  "winner.ingame_label": "Tên trong Game",
+  "ingame_name": "Tên trong Game",
+  "ingame_label": "Tên trong Game:",
+
+  "winner.choose_prize": "Chọn phần thưởng",
+  "choose_prize": "Chọn phần thưởng",
+
+  "winner.drawing_prize": "Đang quay thưởng...",
+  "drawing_prize": "Đang quay thưởng...",
+  "drawing_prize_title": "ĐANG QUAY THƯỞNG",
+
+  "winner_final": "NGƯỜI THẮNG CUỘC",
+  "draw_again": "Bốc thăm lại",
+
+  "common.copy": "Sao chép",
+  "copy": "Sao chép",
+
+  "common.show": "Hiển thị",
+  "show": "Hiển thị",
+
+  "common.hide": "Ẩn",
+  "hide": "Ẩn",
+
+  "history.empty": "Chưa có lượt bốc thăm nào",
+  "no_draws": "Chưa có lượt bốc thăm nào",
+
+  "chat.waiting_name": "@user hãy viết !TenCuaBanTrongGame (30 giây)",
+  "chat.disqualified": "@user bị loại vì không trả lời",
+  "chat.won_prize": "@user đã trúng prize",
+
+  "api.twitch_ok": "✔ Kết nối Twitch IRC thành công",
+  "twitch_connected": "✔ Kết nối Twitch IRC thành công",
+
+  "api.twitch_error": "✖ Twitch KHÔNG kết nối",
+  "twitch_not_connected": "✖ Twitch KHÔNG kết nối",
+
+  "api.mu_ok": "✔ Kết nối API MU thành công",
+  "api_connected": "✔ Kết nối API MU thành công",
+
+  "api.mu_error": "✖ Lỗi kết nối API MU",
+  "api_error": "✖ Lỗi kết nối API MU"
+}

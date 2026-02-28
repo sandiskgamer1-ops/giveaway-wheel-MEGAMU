@@ -1,0 +1,63 @@
+{
+  "participants": "参与者",
+  "draw": "抽奖",
+  "new_draw": "新抽奖",
+  "history": "获奖历史",
+  "clear_history": "清除历史",
+  "available_prizes": "可用奖品",
+  "settings": "设置",
+  "save": "保存",
+  "back": "返回",
+  "enable_debug": "启用调试模式",
+
+  "winner.title": "获胜者",
+  "winner": "获胜者",
+
+  "winner.instruction": "在聊天框输入 <strong>!你的游戏角色名</strong>",
+  "write_ingame": "在聊天框输入 <strong>!你的游戏角色名</strong>",
+
+  "winner.confirmed": "已确认获胜者",
+  "winner_confirmed": "已确认获胜者",
+
+  "winner.ingame_label": "游戏内角色名",
+  "ingame_name": "游戏内角色名",
+  "ingame_label": "角色名:",
+
+  "winner.choose_prize": "选择奖品",
+  "choose_prize": "选择奖品",
+
+  "winner.drawing_prize": "正在抽取奖品...",
+  "drawing_prize": "正在抽取奖品...",
+  "drawing_prize_title": "正在抽取奖品",
+
+  "winner_final": "最终获胜者",
+  "draw_again": "重新抽奖",
+
+  "common.copy": "复制",
+  "copy": "复制",
+
+  "common.show": "显示",
+  "show": "显示",
+
+  "common.hide": "隐藏",
+  "hide": "隐藏",
+
+  "history.empty": "暂无抽奖记录",
+  "no_draws": "暂无抽奖记录",
+
+  "chat.waiting_name": "@user 请在30秒内输入 !角色名",
+  "chat.disqualified": "@user 因未响应被取消资格",
+  "chat.won_prize": "@user 赢得了 prize",
+
+  "api.twitch_ok": "✔ Twitch IRC 连接成功",
+  "twitch_connected": "✔ Twitch IRC 连接成功",
+
+  "api.twitch_error": "✖ Twitch 未连接",
+  "twitch_not_connected": "✖ Twitch 未连接",
+
+  "api.mu_ok": "✔ API MU 连接成功",
+  "api_connected": "✔ API MU 连接成功",
+
+  "api.mu_error": "✖ API MU 连接失败",
+  "api_error": "✖ API MU 连接失败"
+}

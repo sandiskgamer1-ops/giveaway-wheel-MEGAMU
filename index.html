@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sorteos MU</title>
+
+<link rel="stylesheet" href="assets/style.css">
+
+<style>
+#appRoot{position:relative;z-index:2;}
+#appGlass{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+.titlebar{
+z-index:9999;
+-webkit-app-region:drag;
+display:flex;
+justify-content:space-between;
+align-items:center;
+height:34px;
+padding:0 10px;
+}
+
+.titlebar-right{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.no-drag{
+-webkit-app-region:no-drag;
+}
+
+body{color:#fff;}
+</style>
+</head>
+
+<body>
+
+<div id="debugIndicator" class="debug-indicator hidden">
+DEBUG MODE
+</div>
+
+<!-- ================= TITLEBAR ================= -->
+<div class="titlebar">
+
+<div class="titlebar-left">
+Giveaway Wheel
+</div>
+
+<div class="titlebar-right">
+
+  <!-- LANGUAGE -->
+  <div class="language-dropdown no-drag">
+
+    <div id="langSelected" class="lang-selected">
+      <img id="langFlag" src="assets/es.png">
+      <span id="langCode">ES</span>
+    </div>
+
+    <div id="langOptions" class="lang-options hidden">
+
+  <div class="lang-option" data-lang="es">
+    <img src="assets/es.png"> ES
+  </div>
+
+  <div class="lang-option" data-lang="en">
+    <img src="assets/en.png"> EN
+  </div>
+
+  <div class="lang-option" data-lang="pl">
+    <img src="assets/pl.png"> PL
+  </div>
+
+  <div class="lang-option" data-lang="br">
+    <img src="assets/br.png"> BR
+  </div>
+
+  <div class="lang-option" data-lang="vi">
+    <img src="assets/vi.png"> VI
+  </div>
+
+  <div class="lang-option" data-lang="zh">
+    <img src="assets/zh.png"> ZH
+  </div>
+
+</div>
+
+  </div>
+
+  <!-- STREAM MODE -->
+  <button id="streamModeBtn"
+          class="stream-toggle no-drag">
+    🖥 Normal Mode
+  </button>
+
+  <!-- SETTINGS -->
+  <button id="openSettingsBtn"
+          class="settings-btn no-drag">
+    ⚙
+  </button>
+
+  <!-- WINDOW BUTTONS -->
+  <div class="titlebar-controls no-drag">
+    <button id="minBtn">—</button>
+    <button id="closeBtn">✕</button>
+  </div>
+
+</div>
+</div>
+
+<div id="appGlass"></div>
+
+<div id="appRoot">
+
+<!-- ================= MAIN ================= -->
+<div id="mainView" class="view active">
+
+<div class="layout">
+
+<div class="left-panel">
+
+<div class="panel-block main-block">
+
+<div class="panel-title centered-title">
+
+<div class="title-center">
+<span data-i18n="participants">Participantes</span>
+<div class="participants-badge">
+<span id="count">0</span>
+</div>
+</div>
+
+</div>
+
+<div id="participants" class="participants-list"></div>
+
+</div>
+
+<div class="panel-block draw-block">
+
+<div class="draw-header">
+<button id="drawBtn"
+class="primary-btn"
+data-i18n="draw">
+Sortear
+</button>
+
+<button id="resetDrawBtn"
+class="secondary-btn reset-btn"
+data-i18n="new_draw">
+Nuevo sorteo
+</button>
+</div>
+
+<div class="roulette-container">
+<div id="rouletteTrack"
+class="roulette-track"></div>
+</div>
+
+</div>
+
+</div>
+
+<!-- RIGHT -->
+<div class="right-panel">
+
+<div class="panel-block history-section">
+<div class="panel-title">
+<span data-i18n="history">
+Historial
+</span>
+</div>
+
+<div id="history"
+class="history-list"></div>
+</div>
+
+<button id="clearHistoryBtn"
+class="secondary-btn"
+data-i18n="clear_history">
+Limpiar historial
+</button>
+
+<div class="panel-divider"></div>
+
+<div class="panel-block awards-section">
+<div class="panel-title">
+<span data-i18n="available_prizes">
+Premios Disponibles
+</span>
+</div>
+
+<div id="awards"
+class="awards-list"></div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+<!-- ================= SETTINGS ================= -->
+<div id="settingsView" class="view">
+
+<div class="settings-container">
+
+<div class="settings-header">
+<h2 data-i18n="settings">
+Configuración
+</h2>
+</div>
+
+<div class="settings-form">
+
+<div class="form-group">
+<label>OAuth Twitch</label>
+<input id="oauthInput" type="password">
+</div>
+
+<div class="form-group">
+<label>Canal Twitch</label>
+<input id="channelInput" type="text">
+</div>
+
+<div class="form-group">
+<label>Comando</label>
+<input id="commandInput" type="text">
+</div>
+
+<div class="form-group">
+<label>DV</label>
+<input id="dvInput" type="password">
+</div>
+
+<div class="form-group">
+<label>API Key</label>
+<input id="apiKeyInput" type="password">
+</div>
+
+<div class="form-group hidden" id="debugToggleContainer">
+<label>
+<input type="checkbox" id="debugModeToggle">
+Activar DEBUG
+</label>
+</div>
+
+<!-- ✅ API TEST RESTAURADO -->
+<div class="settings-divider"></div>
+
+<div class="settings-test-section">
+
+<button id="testTwitch"
+class="secondary-btn">
+Probar API Twitch
+</button>
+
+<button id="testMu"
+class="secondary-btn">
+Probar API MU
+</button>
+
+<div id="apiStatus"
+class="api-status"></div>
+
+</div>
+
+<div class="settings-actions">
+
+<button id="saveSettingsBtn"
+class="primary-btn">
+Guardar
+</button>
+
+<button id="backBtn"
+class="secondary-btn">
+Volver
+</button>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+<!-- WINNER -->
+<div id="winnerScreen"
+class="winner-screen hidden">
+<div id="winnerName"></div>
+</div>
+
+<div class="watermark">
+Made by - josethemou
+</div>
+
+<script src="renderer.js"></script>
+
+</div>
+</body>
+</html>
