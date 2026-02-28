@@ -683,6 +683,11 @@ body::before {
   cursor: pointer;
 }
 
+.api-warning{
+  background:#b8860b;
+  color:white;
+}
+
 /* ================= WINNER ================= */
 
 /* ================= WINNER OVERLAY PREMIUM ================= */
@@ -1691,4 +1696,28 @@ body,
 
 .lang-option:hover{
   background:#333;
+}
+
+
+/* ================= show/hide de settings ================= */
+
+.password-wrapper{
+  position:relative;
+  display:flex;
+  align-items:center;
+}
+
+.password-wrapper input{
+  width:100%;
+  padding-right:40px;
+}
+
+.toggle-password{
+  position:absolute;
+  right:8px;
+  background:none;
+  border:none;
+  cursor:pointer;
+  color:white;
+  font-size:16px;
 }

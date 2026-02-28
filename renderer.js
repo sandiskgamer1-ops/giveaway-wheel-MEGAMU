@@ -1173,6 +1173,11 @@ streamBtn?.addEventListener(
 
     try{
 
+      ipcRenderer.send(
+        "save-participants",
+        participants
+      );
+
       streamMode = !streamMode;
 
       config.streamMode = streamMode;
@@ -1184,17 +1189,13 @@ streamBtn?.addEventListener(
 
       updateStreamButton();
 
-      // ✅ SOLO AQUÍ cambiamos ventana
       await ipcRenderer.invoke(
         "toggle-stream-mode",
         streamMode
       );
 
     }catch(err){
-      console.error(
-        "Stream toggle error:",
-        err
-      );
+      console.error(err);
     }
 });
 
@@ -1311,6 +1312,22 @@ langSelected?.addEventListener("mousedown",(e)=>{
       ).value = "";
     }
   );
+  
+  try {
+
+  const saved =
+    await ipcRenderer.invoke(
+      "get-participants"
+    );
+
+  if (saved && saved.length) {
+    participants = saved;
+    renderParticipants();
+  }
+
+}catch(e){
+  console.error("Restore participants failed",e);
+}
 
   generateBtn?.addEventListener(
     "click",
@@ -1581,22 +1598,73 @@ document.getElementById("testTwitch").onclick = () => {
   }
 };
 
-document.getElementById("testMu").onclick = async () => {
-  const status = document.getElementById("apiStatus");
+document.getElementById("testMu").onclick =
+async () => {
+
+  const status =
+    document.getElementById("apiStatus");
 
   try {
-    const testAwards = await ipcRenderer.invoke("get-awards", config);
 
-    if (testAwards && testAwards.length > 0) {
-      status.setAttribute("data-i18n","api_connected"); status.innerHTML=""; applyTranslations();
-      status.className = "api-status api-ok";
-    } else {
-      throw new Error();
+    const result =
+      await ipcRenderer.invoke(
+        "get-awards",
+        config
+      );
+
+    if (!result.success) {
+      throw new Error("network");
     }
 
-  } catch (err) {
-    status.setAttribute("data-i18n","api_error"); status.innerHTML=""; applyTranslations();
-    status.className = "api-status api-error";
+    switch(result.code){
+
+      case 1:
+        if(result.awards.length === 0){
+          status.innerText =
+            "API conectada (sin premios)";
+        }else{
+          status.innerText =
+            "API conectada";
+        }
+        status.className =
+          "api-status api-ok";
+        break;
+
+      case 0:
+        status.innerText =
+          "Acción inválida";
+        status.className =
+          "api-status api-warning";
+        break;
+
+      case -100:
+        status.innerText =
+          "Parámetros incorrectos";
+        status.className =
+          "api-status api-error";
+        break;
+
+      case -101:
+        status.innerText =
+          "Autenticación incorrecta";
+        status.className =
+          "api-status api-error";
+        break;
+
+      default:
+        status.innerText =
+          "Respuesta desconocida";
+        status.className =
+          "api-status api-error";
+    }
+
+  } catch {
+
+    status.innerText =
+      "Error conexión API";
+
+    status.className =
+      "api-status api-error";
   }
 };
 

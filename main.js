@@ -16,6 +16,7 @@ const fs = require("fs");
 let mainWindow = null;
 let currentStreamMode = null;
 let switchingWindow = false;
+let cachedParticipants = [];
 
 
 /* =====================================================
@@ -252,15 +253,28 @@ ipcMain.handle(
   ()=>app.getPath("userData")
 );
 
+/* =====================================================
+   PARTICIPANTS CACHE (STREAM SAFE)
+=====================================================*/
+
+// guardar participantes antes de recrear ventana
+ipcMain.on("save-participants", (_, data) => {
+  cachedParticipants = data || [];
+});
+
+// devolver participantes al nuevo renderer
+ipcMain.handle("get-participants", () => {
+  return cachedParticipants;
+});
 
 /* =====================================================
    API MU
 =====================================================*/
 ipcMain.handle(
   "get-awards",
-  async(_,config)=>{
+  async (_, config) => {
 
-    try{
+    try {
 
       const url =
         `https://www.megamu.net/dvapi.php?dv=${config.dv}&key=${config.apiKey}&action=getawards`;
@@ -270,15 +284,20 @@ ipcMain.handle(
 
       const data = JSON.parse(text);
 
-      return data.awards || [];
+      return {
+        success: true,
+        code: data.result ?? 1,
+        awards: data.awards || []
+      };
 
-    }catch(err){
+    } catch (err) {
 
-      console.error(
-        "API MU error:",
-        err
-      );
+      console.error("API MU error:", err);
 
-      return [];
+      return {
+        success:false,
+        code:"NETWORK_ERROR",
+        awards:[]
+      };
     }
 });
