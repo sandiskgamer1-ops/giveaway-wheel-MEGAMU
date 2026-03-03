@@ -1,5 +1,5 @@
 /**
- * main.js — FINAL STABLE BUILD VERSION
+ * main.js — FINAL STABLE BUILD (F12 FIXED PROPERLY)
  */
 
 const {
@@ -7,7 +7,6 @@ const {
   BrowserWindow,
   ipcMain,
   Menu,
-  globalShortcut
 } = require("electron");
 
 const path = require("path");
@@ -17,6 +16,7 @@ let mainWindow = null;
 let currentStreamMode = null;
 let switchingWindow = false;
 let cachedParticipants = [];
+let liveWebhookSent = false;
 
 /* =====================================================
    USER FILES (BUILD SAFE)
@@ -25,15 +25,10 @@ function ensureUserFiles(){
 
   const userData = app.getPath("userData");
 
-  const configPath =
-    path.join(userData,"config.json");
+  const configPath = path.join(userData,"config.json");
+  const historyPath = path.join(userData,"history.json");
 
-  const historyPath =
-    path.join(userData,"history.json");
-
-  // CONFIG
   if(!fs.existsSync(configPath)){
-
     const defaultConfig = {
       oauth:"",
       channel:"",
@@ -42,7 +37,9 @@ function ensureUserFiles(){
       streamMode:false,
       debug:false,
       dv:"",
-      apiKey:""
+      apiKey:"",
+      discordLiveWebhook:"",
+      discordPrizeWebhook:""
     };
 
     fs.writeFileSync(
@@ -51,7 +48,6 @@ function ensureUserFiles(){
     );
   }
 
-  // HISTORY
   if(!fs.existsSync(historyPath)){
     fs.writeFileSync(
       historyPath,
@@ -60,14 +56,37 @@ function ensureUserFiles(){
   }
 }
 
+/* =====================================================
+   ATTACH KEYBOARD SHORTCUTS (WINDOW SAFE)
+=====================================================*/
+function attachShortcuts(win){
+
+  win.webContents.on("before-input-event", (event, input) => {
+
+    // F12 → Toggle Debug Panel
+    if (input.type === "keyDown" && input.key === "F12") {
+      event.preventDefault();
+      win.webContents.send("toggle-debug-panel");
+    }
+
+    // Ctrl + Shift + I → DevTools
+    if (
+      input.type === "keyDown" &&
+      input.control &&
+      input.shift &&
+      input.key.toLowerCase() === "i"
+    ) {
+      event.preventDefault();
+      win.webContents.toggleDevTools();
+    }
+
+  });
+}
 
 /* =====================================================
    CREATE WINDOW
 =====================================================*/
-function createWindow(
-  transparent = false,
-  bounds = null
-){
+function createWindow(transparent = false, bounds = null){
 
   mainWindow = new BrowserWindow({
 
@@ -98,10 +117,10 @@ function createWindow(
   });
 
   Menu.setApplicationMenu(null);
-
   mainWindow.loadFile("index.html");
-}
 
+  attachShortcuts(mainWindow);
+}
 
 /* =====================================================
    APP READY
@@ -111,200 +130,226 @@ app.whenReady().then(()=>{
   ensureUserFiles();
 
   const userData = app.getPath("userData");
-const configPath = path.join(userData,"config.json");
+  const configPath = path.join(userData,"config.json");
 
-let streamMode = false;
+  let streamMode = false;
 
-try{
-  const cfg = JSON.parse(
-    fs.readFileSync(configPath,"utf-8")
-  );
-  streamMode = cfg.streamMode || false;
-}catch{}
+  try{
+    const cfg = JSON.parse(
+      fs.readFileSync(configPath,"utf-8")
+    );
+    streamMode = cfg.streamMode || false;
+  }catch{}
 
-currentStreamMode = streamMode;
+  currentStreamMode = streamMode;
 
-createWindow(streamMode);
-
-  // DEVTOOLS SHORTCUT
-  globalShortcut.unregisterAll();
-
-  globalShortcut.register(
-    "CommandOrControl+Shift+I",
-    ()=>{
-      mainWindow?.webContents.toggleDevTools();
-    }
-  );
+  createWindow(streamMode);
 });
-
 
 /* =====================================================
    SAFE EXIT
 =====================================================*/
 app.on("window-all-closed", () => {
-
-  // ✅ NO cerrar mientras cambiamos modo
   if (switchingWindow) return;
-
-  if (process.platform !== "darwin")
-    app.quit();
+  if (process.platform !== "darwin") app.quit();
 });
-
-app.on("will-quit",()=>{
-  globalShortcut.unregisterAll();
-});
-
 
 /* =====================================================
    WINDOW CONTROLS
 =====================================================*/
-ipcMain.on(
-  "window-minimize",
-  ()=>mainWindow?.minimize()
-);
+ipcMain.on("window-minimize", ()=>mainWindow?.minimize());
 
-ipcMain.on(
-  "window-close",
-  ()=>{
-    if(mainWindow &&
-       !mainWindow.isDestroyed())
-      mainWindow.destroy();
-  }
-);
-
+ipcMain.on("window-close", ()=>{
+  if(mainWindow && !mainWindow.isDestroyed())
+    mainWindow.destroy();
+});
 
 /* =====================================================
    STREAM MODE (NO LOOP / NO MULTI WINDOWS)
 =====================================================*/
-ipcMain.handle(
-  "toggle-stream-mode",
-  async (_, enabled) => {
+ipcMain.handle("toggle-stream-mode", async (_, enabled) => {
 
-    if (!mainWindow) return;
-    if (switchingWindow) return;
+  if (!mainWindow) return;
+  if (switchingWindow) return;
 
-    switchingWindow = true;
-    currentStreamMode = enabled;
+  switchingWindow = true;
+  currentStreamMode = enabled;
 
-    const bounds = mainWindow.getBounds();
-    const oldWindow = mainWindow;
+  const bounds = mainWindow.getBounds();
+  const oldWindow = mainWindow;
 
-    const newWindow = new BrowserWindow({
+  const newWindow = new BrowserWindow({
 
-      width: bounds.width,
-      height: bounds.height,
-      x: bounds.x,
-      y: bounds.y,
+    width: bounds.width,
+    height: bounds.height,
+    x: bounds.x,
+    y: bounds.y,
 
-      frame:false,
-      transparent: enabled,
+    frame:false,
+    transparent: enabled,
 
-      backgroundColor:
-        enabled ? "#00000000" : "#0b0b0b",
+    backgroundColor:
+      enabled ? "#00000000" : "#0b0b0b",
 
-      resizable:true,
-      movable:true,
-      minimizable:true,
-      closable:true,
+    resizable:true,
+    movable:true,
+    minimizable:true,
+    closable:true,
 
-      titleBarStyle:"hidden",
+    titleBarStyle:"hidden",
 
-      webPreferences:{
-        nodeIntegration:true,
-        contextIsolation:false
-      }
-    });
+    webPreferences:{
+      nodeIntegration:true,
+      contextIsolation:false
+    }
+  });
 
-    Menu.setApplicationMenu(null);
+  Menu.setApplicationMenu(null);
+  await newWindow.loadFile("index.html");
 
-    await newWindow.loadFile("index.html");
+  attachShortcuts(newWindow);
 
-    mainWindow = newWindow;
+  mainWindow = newWindow;
 
-    mainWindow.setAlwaysOnTop(
-      enabled,
-      "screen-saver"
-    );
+  mainWindow.setAlwaysOnTop(
+    enabled,
+    "screen-saver"
+  );
 
-    // ✅ destruir después
-    if (oldWindow && !oldWindow.isDestroyed())
-      oldWindow.destroy();
+  if (oldWindow && !oldWindow.isDestroyed())
+    oldWindow.destroy();
 
-    switchingWindow = false;
-  }
-);
+  switchingWindow = false;
+});
 
 /* =====================================================
    USER DATA PATH
 =====================================================*/
-ipcMain.handle(
-  "get-user-path",
-  ()=>app.getPath("userData")
-);
-ipcMain.on("overlay-update", (_, data) => {
-  overlayState = data;
-});
+ipcMain.handle("get-user-path", ()=>app.getPath("userData"));
 
 /* =====================================================
-   PARTICIPANTS CACHE (STREAM SAFE)
+   PARTICIPANTS CACHE
 =====================================================*/
-
-// guardar participantes antes de recrear ventana
 ipcMain.on("save-participants", (_, data) => {
   cachedParticipants = data || [];
 });
 
-// devolver participantes al nuevo renderer
 ipcMain.handle("get-participants", () => {
   return cachedParticipants;
 });
 
 /* =====================================================
-   API MU
+   API MU - GET AWARDS
 =====================================================*/
-ipcMain.handle(
-  "get-awards",
-  async (_, config) => {
+ipcMain.handle("get-awards", async (_, config) => {
 
-    try {
+  try {
 
-      const url =
-        `https://www.megamu.net/dvapi.php?dv=${config.dv}&key=${config.apiKey}&action=getawards`;
-
-      const response = await fetch(url);
-      const text = await response.text();
-
-      const data = JSON.parse(text);
-
-      // ===============================
-      // VALIDACIÓN API MU
-      // ===============================
-
-      if (data.result === -101)
-        throw new Error("AUTH_ERROR");
-
-      if (data.result === -100)
-        throw new Error("BAD_PARAMS");
-
-      if (data.result === 0)
-        throw new Error("INVALID_ACTION");
-
-      // ✅ éxito aunque no haya premios
-      return Array.isArray(data.awards)
-        ? data.awards
-        : [];
-
-    } catch (err) {
-
-      console.error("API MU error:", err);
-
-      return {
-        error: true,
-        message: err.message
-      };
+    if (!config.dv || !config.apiKey) {
+      return [];
     }
+
+    const url =
+      `https://www.megamu.net/dvapi.php?dv=${config.dv}&key=${config.apiKey}&action=getawards`;
+
+    const response = await fetch(url);
+    const text = await response.text();
+
+    const data = JSON.parse(text);
+
+    if (data.result === -101) throw new Error("AUTH_ERROR");
+    if (data.result === -100) throw new Error("BAD_PARAMS");
+    if (data.result === 0) throw new Error("INVALID_ACTION");
+
+    return Array.isArray(data.awards)
+      ? data.awards
+      : [];
+
+  } catch (err) {
+
+    console.error("API MU error:", err);
+
+    return {
+      error: true,
+      message: err.message
+    };
+  }
 });
 
-ipcMain.on("overlay-update", (_, data) => {
-  overlayState = data;
+/* =====================================================
+   DISCORD WEBHOOK RESET (DEBUG)
+=====================================================*/
+ipcMain.on("reset-discord-cooldowns", () => {
+
+  lastLiveWebhook = 0;
+  lastPrizeWebhook = 0;
+  liveWebhookSent = false;
+
+  console.log("Discord cooldowns reset (DEBUG)");
+
+});
+
+/* =====================================================
+   DISCORD WEBHOOK
+=====================================================*/
+let lastLiveWebhook = 0;
+let lastPrizeWebhook = 0;
+const DISCORD_COOLDOWN_MS = 60000;
+
+ipcMain.handle("send-discord", async (_, payload) => {
+
+  if (!payload || !payload.webhook) {
+    return { error: true, message: "No webhook configured" };
+  }
+
+  const now = Date.now();
+
+  if (payload.type === "live" &&
+      now - lastLiveWebhook < DISCORD_COOLDOWN_MS) {
+    return { error: true, message: "Live cooldown active" };
+  }
+
+  if (payload.type === "prize" &&
+      now - lastPrizeWebhook < DISCORD_COOLDOWN_MS) {
+    return { error: true, message: "Prize cooldown active" };
+  }
+
+  try {
+
+    if (payload.type === "live" && liveWebhookSent) {
+      return { skipped: true };
+    }
+
+    await fetch(payload.webhook, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: payload.type === "live"
+          ? "EN VIVO BOT"
+          : "BOT DE PREMIOS",
+        embeds: [{
+          title: payload.embed?.title || "",
+          description: payload.embed?.description || "",
+          color: payload.embed?.color || 5814783,
+          fields: payload.embed?.fields || [],
+          footer: { text: "Megamu Sorteos" },
+          timestamp: new Date().toISOString()
+        }]
+      })
+    });
+
+    if (payload.type === "live") {
+      liveWebhookSent = true;
+      lastLiveWebhook = now;
+    }
+
+    if (payload.type === "prize") {
+      lastPrizeWebhook = now;
+    }
+
+    return { success: true };
+
+  } catch (err) {
+    return { error: true, message: err.message };
+  }
 });

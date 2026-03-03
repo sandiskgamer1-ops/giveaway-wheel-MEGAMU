@@ -87,6 +87,14 @@ Giveaway Wheel
 
   </div>
 
+  
+  <button id="liveBtn" class="header-btn live-idle no-drag">
+  <span class="live-dot"></span> Live
+</button>
+  <button id="announceBtn" class="header-btn announce-btn no-drag">
+  🎁 Anunciar Sorteo
+</button>
+
   <!-- STREAM MODE -->
   <button id="streamModeBtn"
           class="stream-toggle no-drag">
@@ -300,6 +308,21 @@ class="api-status"></div>
 
 </div>
 
+
+<div class="form-group">
+  <label>Discord Webhook (Live)</label>
+  <input id="discordLiveWebhookInput" type="text">
+</div>
+<div class="form-group">
+<label style="opacity:0.5;font-size:12px;">Discord Webhook (Premios)</label>
+<input id="discordPrizeWebhookInput" type="text">
+</div>
+
+<div class="settings-divider"></div>
+
+<div class="settings-test-section">
+  
+
 <div class="settings-actions">
 
 <button id="saveSettingsBtn"
@@ -328,6 +351,30 @@ class="winner-screen hidden">
 
 <div class="watermark">
 Made by - josethemou
+</div>
+
+<!-- ================= DEBUG PANEL ================= -->
+<div id="debugPanel" class="debug-panel hidden">
+
+  <div class="debug-header">
+    DEBUG PANEL
+  </div>
+
+  <div class="debug-body">
+ 
+    <button id="resetCooldownBtn" class="secondary-btn">
+      Reset Discord Cooldowns
+    </button>
+
+    <button id="addDebugUserBtn" class="secondary-btn">
+      Añadir usuario debug
+    </button>
+
+    <button id="generateFakeUsersBtn" class="secondary-btn">
+      Generar usuarios fake
+    </button>
+  </div>
+
 </div>
 
 <script src="renderer.js"></script>

@@ -8,6 +8,35 @@
  */
 
 const { ipcRenderer } = require("electron");
+
+/* =====================================================
+   DEBUG PANEL CONTROL (IPC FROM MAIN)
+=====================================================*/
+
+let DEBUG_PANEL_ACTIVE = false;
+let DEBUG_MODE = false;
+ipcRenderer.on("toggle-debug-panel", () => {
+
+  DEBUG_PANEL_ACTIVE = !DEBUG_PANEL_ACTIVE;
+
+  // 🔥 Activar DEBUG_MODE automáticamente
+  DEBUG_MODE = DEBUG_PANEL_ACTIVE;
+
+  const panel = document.getElementById("debugPanel");
+  const indicator = document.getElementById("debugIndicator");
+
+  if(panel){
+    panel.classList.toggle("hidden", !DEBUG_PANEL_ACTIVE);
+  }
+
+  if(indicator){
+    indicator.classList.toggle("hidden", !DEBUG_PANEL_ACTIVE);
+  }
+
+  console.log("DEBUG MODE:", DEBUG_MODE);
+
+});
+
 let config = {};
 let userPath = "";
 const fs = require("fs");
@@ -41,7 +70,7 @@ let winners = [];
 
 // history se cargará después de loadConfig()
 
-let DEBUG_MODE = false;
+
 let forcedWinner = null;
 let forcedPrize = null;
 let simulateApiError = false;
@@ -77,6 +106,10 @@ async function loadConfig() {
   config = JSON.parse(
     fs.readFileSync(configPath, "utf-8")
   );
+  
+  // 🔒 Garantizar propiedades Discord siempre definidas
+config.discordLiveWebhook = config.discordLiveWebhook || "";
+config.discordPrizeWebhook = config.discordPrizeWebhook || "";
 }
 
 function getBasePath() {
@@ -191,6 +224,26 @@ function startAwardsAutoRefresh() {
 }
 
 // ===============================
+// LIVE STATUS
+// ===============================
+
+function setLiveStatus(isConnected){
+
+  const liveBtn = document.getElementById("liveBtn");
+  if(!liveBtn) return;
+
+  if(isConnected){
+    liveBtn.classList.remove("live-idle");
+    liveBtn.classList.add("live-active");
+    liveBtn.innerHTML = '<span class="live-dot"></span> EN VIVO';
+  }else{
+    liveBtn.classList.remove("live-active");
+    liveBtn.classList.add("live-idle");
+    liveBtn.innerHTML = '<span class="live-dot"></span> OFFLINE';
+  }
+}
+
+// ===============================
 // Twitch IRC
 // ===============================
 
@@ -214,8 +267,17 @@ function connectTwitch() {
     socket.send(`JOIN #${config.channel}`);
 
     console.log("✅ Conectado a Twitch IRC");
-  };
 
+    // 🔥 Indicador visual
+    setLiveStatus(true);
+
+    // 🔥 AUTO LIVE WEBHOOK (OPCIÓN B - SIN AWAIT)
+    if (config.discordLiveWebhook && config.discordLiveWebhook.length > 10) {
+      sendDiscord("live").catch(err => {
+        console.error("Live webhook error:", err);
+      });
+    }
+  };
 
   socket.onmessage = (event) => {
 
@@ -236,7 +298,6 @@ function connectTwitch() {
 
       const { user, message, badges } = parsed;
 
-      // ✅ DEBUG REAL
       console.log("CHAT:", user, "→", message);
 
       const cleanMessage =
@@ -249,16 +310,10 @@ function connectTwitch() {
           .trim()
           .toLowerCase();
 
-      // ===============================
-      // JOIN COMMAND
-      // ===============================
       if (cleanMessage === joinCommand) {
         addParticipant(user, badges);
       }
 
-      // ===============================
-      // INGAME NAME
-      // ===============================
       if (
         waitingForGameName &&
         user === currentWinner &&
@@ -269,9 +324,7 @@ function connectTwitch() {
           message.substring(1).trim();
 
         if (name.length > 0) {
-
           winnerGameName = name;
-
           stopCountdown();
           showGameName(name);
         }
@@ -280,13 +333,14 @@ function connectTwitch() {
     });
   };
 
-
   socket.onerror = err => {
     console.error("❌ Twitch socket error:", err);
+    setLiveStatus(false);
   };
 
   socket.onclose = () => {
     console.log("⚠ Twitch desconectado");
+    setLiveStatus(false);
   };
 }
 
@@ -1067,6 +1121,13 @@ function finishDraw(prize) {
   renderParticipants();
 
   addToHistory(currentWinner, prize.name);
+  
+// 🔥 Immediate awards refresh after prize draw
+if (typeof loadAwards === "function") {
+  loadAwards().catch(err => {
+    console.error("Awards refresh error:", err);
+  });
+}
 
   setHTML(winnerContainer, `
     <div class="winner-box">
@@ -1169,8 +1230,6 @@ function sendChatMessage(message) {
     );
   }
 
-  DEBUG_MODE = config.debug || false;
-
   await loadLanguage(
     config.language || "es"
   );
@@ -1190,34 +1249,17 @@ function sendChatMessage(message) {
 
 })();
 
-  // ===============================
-  // DEBUG PANEL
-  // ===============================
-
-  function updateDebugPanel(){
-
-  const panel =
-    document.getElementById("debugPanel");
-
-  const indicator =
-    document.getElementById("debugIndicator");
-
-  panel?.classList.toggle(
-    "hidden",
-    !DEBUG_MODE
-  );
-
-  indicator?.classList.toggle(
-    "hidden",
-    !DEBUG_MODE
-  );
-}
-
 document.addEventListener("DOMContentLoaded", async () => {
 
   // ===============================
   // WINDOW CONTROLS
   // ===============================
+  
+  const discordInput = document.getElementById("discordWebhookInput");
+
+  if (discordInput && config.discordWebhook) {
+  discordInput.value = config.discordWebhook;
+  }
 
   const minBtn = document.getElementById("minBtn");
   const closeBtn = document.getElementById("closeBtn");
@@ -1500,8 +1542,8 @@ langSelected?.addEventListener("mousedown",(e)=>{
 
       DEBUG_MODE = config.debug;
 
-      updateDebugPanel();
-
+      
+	  
       fs.writeFileSync(
         path.join(userPath,"config.json"),
         JSON.stringify(config,null,2)
@@ -1554,7 +1596,7 @@ langSelected?.addEventListener("mousedown",(e)=>{
       DEBUG_MODE =
         config.debug || false;
 
-      updateDebugPanel();
+      
     }
   );
 
@@ -1752,11 +1794,6 @@ async () => {
   }
 };
 
-//debug
-if (DEBUG_MODE) {
-  document.getElementById("debugIndicator")?.classList.remove("hidden");
-}
-
 function addDebugUser(name, role) {
 
   if (!name) return;
@@ -1827,37 +1864,6 @@ function setHTML(el, html) {
   el.innerHTML = html;
   applyTranslations();
 }
-
-// =====================================
-// SECRET DEBUG TOGGLE (F12)
-// =====================================
-window.addEventListener("keydown", (e) => {
-
-  if (e.key === "F12") {
-
-    // 🚫 evitar comportamiento chromium
-    e.preventDefault();
-    e.stopPropagation();
-
-    DEBUG_MODE = !DEBUG_MODE;
-
-    const indicator =
-      document.getElementById("debugIndicator");
-
-    if (indicator) {
-      indicator.classList.toggle(
-        "hidden",
-        !DEBUG_MODE
-      );
-    }
-
-    console.log(
-      "[DEBUG MODE]",
-      DEBUG_MODE ? "ON" : "OFF"
-    );
-  }
-
-});
 
 ///CONFETTI Winner
 
@@ -1995,3 +2001,405 @@ function stopConfetti(){
     canvas.height
   );
 }
+
+/* =====================================================
+   DISCORD WEBHOOK (TITLEBAR)
+=====================================================*/
+
+function buildLiveMessage(){
+  return `🔴 EN VIVO\nCanal: ${config.channel}\nComando: ${config.command}`;
+}
+
+function buildPrizeMessage(){
+  const prizeList = awards.map(a => `- ${a.name}`).join("\n");
+  return `🎁 NUEVO SORTEO\nCanal: ${config.channel}\nComando: ${config.command}\nPremios:\n${prizeList}`;
+}
+
+async function sendDiscord(type){
+
+  const webhook = type === "live"
+    ? config.discordLiveWebhook
+    : config.discordPrizeWebhook;
+
+  if(typeof webhook !== "string" || webhook.trim().length < 20){
+    console.warn("Webhook no configurado");
+    return;
+  }
+
+  let embed;
+
+  if(type === "live"){
+
+    embed = {
+      title: "🔴 ¡Estamos EN VIVO!",
+      description: `El stream ha comenzado.`,
+      color: 16711680, // rojo
+      fields: [
+        {
+          name: "📺 Canal",
+          value: config.channel,
+          inline: true
+        },
+        {
+          name: "💬 Comando",
+          value: config.command,
+          inline: true
+        }
+      ]
+    };
+
+  } else {
+
+    const prizeList =
+      awards.map(a => `• **${a.name}**`).join("\n");
+
+    embed = {
+      title: "🎁 ¡Nuevo Sorteo Activo!",
+      description: "Participa ahora en el sorteo:",
+      color: 5814783, // morado Twitch
+      fields: [
+        {
+          name: "📺 Canal",
+          value: config.channel,
+          inline: true
+        },
+        {
+          name: "💬 Comando",
+          value: config.command,
+          inline: true
+        },
+        {
+          name: "🏆 Premios Disponibles",
+          value: prizeList || "Sin premios",
+          inline: false
+        }
+      ]
+    };
+  }
+
+  const response = await ipcRenderer.invoke("send-discord",{
+    type,
+    webhook,
+    embed
+  });
+
+  if(response?.error){
+    console.warn(response.message);
+  }
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+
+  const liveBtn = document.getElementById("discordLiveBtn");
+  const prizeBtn = document.getElementById("discordPrizeBtn");
+
+  liveBtn?.addEventListener("click",()=>sendDiscord("live"));
+  prizeBtn?.addEventListener("click",()=>sendDiscord("prize"));
+
+  const liveInput = document.getElementById("discordLiveWebhookInput");
+  const prizeInput = document.getElementById("discordPrizeWebhookInput");
+
+  if(liveInput && config.discordLiveWebhook){
+    liveInput.value = config.discordLiveWebhook;
+  }
+
+  if(prizeInput && config.discordPrizeWebhook){
+    prizeInput.value = config.discordPrizeWebhook;
+  }
+
+  const saveBtn = document.getElementById("saveSettingsBtn");
+
+  saveBtn?.addEventListener("click",()=>{
+    config.discordLiveWebhook = liveInput?.value.trim() || "";
+    config.discordPrizeWebhook = prizeInput?.value.trim() || "";
+  });
+
+});
+
+
+/* =====================================================
+   HEADER BUTTON UX CONTROL
+=====================================================*/
+
+document.addEventListener("DOMContentLoaded",()=>{
+
+  const liveBtn = document.getElementById("liveBtn");
+  const announceBtn = document.getElementById("announceBtn");
+
+  let liveActive = false;
+  
+    liveActive = !liveActive;
+
+    if(liveActive){
+      liveBtn.classList.remove("live-idle");
+      liveBtn.classList.add("live-active");
+      liveBtn.innerHTML = '<span class="live-dot"></span> EN VIVO';
+    }else{
+      liveBtn.classList.remove("live-active");
+      liveBtn.classList.add("live-idle");
+      liveBtn.innerHTML = '<span class="live-dot"></span> Live';
+    }
+  });
+
+  announceBtn?.addEventListener("click", async ()=>{
+
+    await sendDiscord("prize");
+
+    announceBtn.classList.add("announce-sent");
+
+    setTimeout(()=>{
+      announceBtn.classList.remove("announce-sent");
+    },500);
+
+  });
+
+
+/* =====================================================
+   STREAM MODE CLASS APPLY
+=====================================================*/
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (config.streamMode) {
+    document.body.classList.add("stream-mode");
+  }
+});
+
+
+/* =====================================================
+   AWARD TOGGLE SYSTEM
+=====================================================*/
+
+function renderAwards() {
+
+  const container = document.getElementById("awards");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  awards.forEach((a, index) => {
+
+    if (typeof a.disabled === "undefined") {
+      a.disabled = false;
+    }
+
+    const div = document.createElement("div");
+    div.style.display = "flex";
+    div.style.justifyContent = "space-between";
+    div.style.alignItems = "center";
+
+    if (a.disabled) {
+      div.classList.add("award-disabled");
+    }
+
+    const name = document.createElement("span");
+    name.textContent = a.name;
+
+    const toggle = document.createElement("input");
+    toggle.type = "checkbox";
+    toggle.checked = !a.disabled;
+
+    toggle.addEventListener("change", () => {
+      awards[index].disabled = !toggle.checked;
+      renderAwards();
+    });
+
+    div.appendChild(name);
+    div.appendChild(toggle);
+
+    container.appendChild(div);
+  });
+}
+
+
+/* =====================================================
+   OVERRIDE PRIZE ROULETTE WITH FILTER
+=====================================================*/
+
+function startPrizeRoulette() {
+
+  const availableAwards = awards.filter(a => !a.disabled);
+
+  if (!availableAwards || availableAwards.length === 0) {
+    drawState = "waitingName";
+    return;
+  }
+
+  if (availableAwards.length === 1) {
+
+    drawState = "spinningPrize";
+    const prize = availableAwards[0];
+
+    setTimeout(() => {
+      finishDraw(prize);
+    }, 500);
+
+    return;
+  }
+
+  drawState = "spinningPrize";
+
+  let prize;
+
+  if (DEBUG_MODE && forcedPrize) {
+    prize = availableAwards.find(a => a.name === forcedPrize);
+  } else {
+    prize = availableAwards[Math.floor(Math.random() * availableAwards.length)];
+  }
+
+  if (!prize) {
+    drawState = "waitingName";
+    return;
+  }
+
+  const track = document.getElementById("overlayRouletteTrack");
+  const container = document.querySelector(".overlay-roulette-container");
+
+  if (!track || !container) {
+    drawState = "waitingName";
+    return;
+  }
+
+  track.style.transition = "none";
+  track.style.transform = "translateX(0)";
+  track.innerHTML = "";
+
+  const visualList = [];
+
+  for (let i = 0; i < 120; i++) {
+    visualList.push(
+      availableAwards[Math.floor(Math.random() * availableAwards.length)]
+    );
+  }
+
+  const winnerIndex = visualList.length;
+  visualList.push(prize);
+
+  for (let i = 0; i < 120; i++) {
+    visualList.push(
+      availableAwards[Math.floor(Math.random() * availableAwards.length)]
+    );
+  }
+
+  visualList.forEach(a => {
+    const div = document.createElement("div");
+    div.classList.add("roulette-item");
+    div.textContent = a.name;
+    track.appendChild(div);
+  });
+
+  requestAnimationFrame(() => {
+
+    const items = track.querySelectorAll(".roulette-item");
+    const winnerElement = items[winnerIndex];
+
+    if (!winnerElement) {
+      drawState = "waitingName";
+      return;
+    }
+
+    const containerWidth = container.offsetWidth;
+    const winnerWidth = winnerElement.offsetWidth;
+    const winnerOffset = winnerElement.offsetLeft;
+
+    const finalPosition =
+      winnerOffset - (containerWidth / 2) + (winnerWidth / 2);
+
+    track.style.transition =
+      "transform 5s cubic-bezier(0.1, 0.7, 0.1, 1)";
+
+    track.style.transform =
+      `translateX(-${finalPosition}px)`;
+
+    setTimeout(() => {
+      finishDraw(prize);
+    }, 5200);
+
+  });
+}
+
+/* =====================================================
+   DEBUG PANEL ACTIONS
+=====================================================*/
+
+function initDebugPanel(){
+	
+	const forceBtn = document.getElementById("forceCommandBtn");
+
+    if(forceBtn){
+    forceBtn.addEventListener("click", () => {
+
+    if(!DEBUG_MODE) return;
+
+    if(drawState !== "waitingName") {
+      console.log("No hay ganador esperando comando");
+      return;
+    }
+
+    if(!currentWinner) return;
+
+    winnerGameName = currentWinner + "_Debug";
+
+    stopCountdown();
+
+    showGameName(winnerGameName);
+
+    console.log("Comando forzado para:", winnerGameName);
+  });
+}
+	
+	
+  const resetBtn = document.getElementById("resetCooldownBtn");
+
+  if(resetBtn){
+  resetBtn.onclick = () => {
+
+    ipcRenderer.send("reset-discord-cooldowns");
+
+    // 🔥 Animación visual elegante
+    resetBtn.classList.add("debug-success");
+
+    resetBtn.textContent = "Cooldowns Reset ✓";
+
+    setTimeout(() => {
+      resetBtn.classList.remove("debug-success");
+      resetBtn.textContent = "Reset Discord Cooldowns";
+    }, 1500);
+
+  };
+}
+  const addBtn = document.getElementById("addDebugUserBtn");
+  const fakeBtn = document.getElementById("generateFakeUsersBtn");
+
+  if(addBtn){
+    addBtn.addEventListener("click", () => {
+
+      if(!DEBUG_MODE) {
+        console.log("DEBUG desactivado en config");
+        return;
+      }
+
+      const name = "DebugUser_" + Math.floor(Math.random()*1000);
+
+      addParticipant(name, "");
+      console.log("Debug user added:", name);
+    });
+  }
+
+  if(fakeBtn){
+    fakeBtn.addEventListener("click", () => {
+
+      if(!DEBUG_MODE) return;
+
+      for(let i=0;i<20;i++){
+        const name = "Fake_" + Math.floor(Math.random()*10000);
+        addParticipant(name, "");
+      }
+
+      console.log("20 fake users generated");
+    });
+  }
+
+}
+
+// Ejecutar inmediatamente
+document.addEventListener("DOMContentLoaded", initDebugPanel);
