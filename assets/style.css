@@ -1,3 +1,121 @@
+
+/* =====================================================
+   THEME SYSTEM
+   Description:
+   Variables used across the UI so colors can be changed
+   dynamically from the settings panel.
+===================================================== */
+
+
+/* =====================================================
+   FEATURE: Global Theme Variables
+   Description:
+   All UI colors derive from these variables so the Theme
+   Editor can control the entire interface.
+===================================================== */
+:root{
+ --accent-color:#9146ff;
+ --accent-glow:#a970ff;
+
+ --bg-primary:#0f0f0f;
+ --bg-secondary:#0c0c0c;
+ --panel-bg:#141414;
+
+ --text-primary:#ffffff;
+ --text-secondary:#b9b9b9;
+
+ --border-color:#2a2a2a;
+ --divider-color:#3a3a3a;
+
+ --button-bg:#1b1b1b;
+ --button-hover:#242424;
+
+ --roulette-glow:rgba(145,70,255,0.6);
+
+ --vip-color:#f5b642;
+ --sub-color:#a970ff;
+ --winner-color:#00ffc3;
+
+ --scrollbar-color:#9146ff;
+ --slider-color:var(--accent-color);
+--accent-highlight:#a970ff;
+}
+
+.theme-toggle{
+cursor:pointer;
+font-weight:600;
+padding:10px 0;
+border-bottom:1px solid #222;
+margin-bottom:10px;
+}
+
+.theme-row{
+display:grid;
+grid-template-columns:120px 1fr;
+align-items:center;
+gap:12px;
+margin:10px 0;
+}
+
+.theme-row input{width:140px;height:28px;}
+
+/* ================= THEME EDITOR ================= */
+
+.theme-editor{
+background:rgba(255,255,255,0.02);
+border:1px solid rgba(255,255,255,0.05);
+border-radius:14px;
+padding:18px 22px;
+margin-top:10px;
+}
+
+.theme-toggle{
+font-size:14px;
+font-weight:600;
+cursor:pointer;
+margin-bottom:14px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+}
+
+.theme-row label{
+font-size:13px;
+opacity:0.7;
+}
+
+.theme-row input[type="color"]{
+width:100%;
+height:32px;
+border-radius:6px;
+border:none;
+background:#111;
+cursor:pointer;
+}
+
+.theme-presets{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+margin-top:16px;
+}
+
+.theme-presets button{
+background:#111;
+border:1px solid #222;
+color:#aaa;
+padding:6px 12px;
+border-radius:6px;
+font-size:12px;
+cursor:pointer;
+transition:all .2s;
+}
+
+.theme-presets button:hover{
+border-color:var(--accent-color);
+color:#fff;
+}
+
 /* ================= BASE ================= */
 
 html, body {
@@ -111,7 +229,8 @@ body::before {
 }
 
 .participant {
-	  animation: fadeInParticipant 0.3s ease;
+  animation: fadeInParticipant 0.3s ease;
+  display:flex;
 }
 
 @keyframes fadeInParticipant {
@@ -124,11 +243,10 @@ body::before {
     transform: translateX(0);
   }
 }
-  display: flex;
   align-items: center;
   padding: 12px 0;
   font-size: 15px;
-  border-bottom: 1px solid #141414;
+  border-bottom: 1px solid var(--panel-bg);
   transition: 0.2s ease;
 }
 
@@ -159,7 +277,7 @@ body::before {
   justify-content: space-between;
   align-items: center;
   padding: 10px 0;
-  border-bottom: 1px solid #141414;
+  border-bottom: 1px solid var(--panel-bg);
   font-size: 14px;
 }
 
@@ -181,7 +299,7 @@ body::before {
 
 .participant-prob {
   font-size: 12px;
-  color: #9146ff;
+  color: var(--accent-color);
   font-weight: 600;
   min-width: 55px;
   text-align: right;
@@ -255,7 +373,7 @@ body::before {
 }
 
 .badge.sub {
-  background: #9146ff;
+  background: var(--accent-color);
   color: #fff;
 }
 
@@ -312,8 +430,8 @@ body::before {
   transform: translateX(-50%);
   width: 3px;
   height: 100%;
-  background: linear-gradient(to bottom, transparent, #9146ff, transparent);
-  box-shadow: 0 0 12px rgba(145,70,255,0.6);
+  background: linear-gradient(to bottom, transparent, var(--accent-color), transparent);
+  box-shadow: 0 0 12px var(--roulette-glow);
   z-index: 6;
 }
 
@@ -363,7 +481,7 @@ body::before {
 }
 
 .roulette-item.winner-highlight {
-  border-color: #9146ff;
+  border-color: var(--accent-color);
   box-shadow: 0 0 25px rgba(145,70,255,0.4);
   background: #1a1a1a;
 }
@@ -410,7 +528,7 @@ body::before {
 }
 
 .roulette-sub {
-  border-color: #9146ff;
+  border-color: var(--accent-color);
   box-shadow: 0 0 12px rgba(145, 70, 255, 0.35);
   background: linear-gradient(180deg, #160f22 0%, #110b18 100%);
 }
@@ -421,7 +539,7 @@ body::before {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #0f0f0f;
+  background: var(--bg-primary);
   padding: 25px;
 }
 
@@ -447,7 +565,7 @@ body::before {
   bottom: 0;
   width: 100%;
   height: 3px;
-  background: linear-gradient(90deg, #9146ff, #b97bff);
+  background: linear-gradient(90deg, var(--accent-color), #b97bff);
 }
 
 .panel-divider {
@@ -566,7 +684,7 @@ body::before {
 .settings-form input {
   width: 100%;
   padding: 14px 16px;
-  background: #0f0f0f;
+  background: var(--bg-primary);
   border: 1px solid #222;
   border-radius: 10px;
   color: #eaeaea;
@@ -574,7 +692,7 @@ body::before {
 }
 
 .settings-form input:focus {
-  border-color: #9146ff;
+  border-color: var(--accent-color);
   box-shadow: 0 0 0 2px rgba(145,70,255,0.15);
 }
 
@@ -624,7 +742,7 @@ body::before {
   height: 3px;
   width: 100%;
   margin-top: 8px;
-  background: linear-gradient(90deg, #9146ff, #b97bff);
+  background: linear-gradient(90deg, var(--accent-color), #b97bff);
 }
 
 .settings-form {
@@ -695,7 +813,7 @@ body::before {
 .winner-screen {
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle at center, #0f0f0f 0%, #000 80%);
+  background: radial-gradient(circle at center, var(--bg-primary) 0%, #000 80%);
   backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
@@ -714,7 +832,7 @@ body::before {
   max-width: 720px;
   padding: 70px 80px;
   border-radius: 20px;
-  background: linear-gradient(180deg, #141414 0%, #101010 100%);
+  background: linear-gradient(180deg, var(--panel-bg) 0%, #101010 100%);
   border: 1px solid #222;
   box-shadow:
     0 0 60px rgba(0,0,0,0.6),
@@ -749,7 +867,7 @@ body::before {
 /* Bloque elegante para premio o ingame */
 .winner-prize,
 .ingame-box {
-  background: #0f0f0f;
+  background: var(--bg-primary);
   border: 1px solid #222;
   border-radius: 14px;
   padding: 20px;
@@ -769,7 +887,7 @@ body::before {
   padding: 14px 38px;
   border-radius: 10px;
   border: 1px solid #2a2a2a;
-  background: linear-gradient(145deg, #1a1a1a, #141414);
+  background: linear-gradient(145deg, #1a1a1a, var(--panel-bg));
   color: white;
   font-weight: 600;
   font-size: 14px;
@@ -820,7 +938,7 @@ body::before {
 }
 
 .awards-list div {
-  background: #141414;
+  background: var(--panel-bg);
   border: 1px solid #222;
   border-radius: 8px;
   padding: 10px 14px;
@@ -875,7 +993,7 @@ body::before {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  border: 3px solid #9146ff;
+  border: 3px solid var(--accent-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -923,7 +1041,7 @@ body::before {
 
 .progress-ring-progress {
   fill: none;
-  stroke: #9146ff;
+  stroke: var(--accent-color);
   stroke-width: 6;
   stroke-linecap: round;
   transition: stroke 0.3s ease;
@@ -992,7 +1110,7 @@ body::before {
   padding: 14px 55px;
   border-radius: 10px;
   border: 1px solid #2a2a2a;
-  background: linear-gradient(145deg, #1f1f1f, #141414);
+  background: linear-gradient(145deg, #1f1f1f, var(--panel-bg));
   color: white;
   font-size: 16px;
   font-weight: 600;
@@ -1027,7 +1145,7 @@ body::before {
   width: 3px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(to bottom, transparent, #9146ff, transparent);
+  background: linear-gradient(to bottom, transparent, var(--accent-color), transparent);
 }
 
 
@@ -1135,48 +1253,6 @@ body::before {
   justify-content: center;
 }
 
-/* ================= RESET DRAW BUTTON ================= */
-
-.reset-btn {
-  position: relative;
-  overflow: hidden;
-  transition: all 0.25s ease;
-}
-
-/* glow base */
-.reset-btn::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    120deg,
-    transparent,
-    rgba(145,70,255,0.25),
-    transparent
-  );
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-/* hover */
-.reset-btn:hover {
-  border-color: #ff4d6d;
-  box-shadow:
-    0 0 12px rgba(255,77,109,0.35);
-    inset 0 0 8px rgba(145,70,255,0.15);
-  transform: translateY(-1px);
-}
-
-.reset-btn:hover::before {
-  opacity: 1;
-}
-
-/* click feedback */
-.reset-btn:active {
-  transform: scale(0.97);
-  box-shadow:
-    inset 0 0 10px rgba(145,70,255,0.35);
-}
 
 /* ================= LANGUAGE SELECT ================= */
 
@@ -1193,12 +1269,12 @@ body::before {
 }
 
 .language-select:hover {
-  border-color: #9146ff;
+  border-color: var(--accent-color);
 }
 
 .language-select:focus {
   outline: none;
-  border-color: #9146ff;
+  border-color: var(--accent-color);
   box-shadow: 0 0 8px rgba(145,70,255,0.4);
 }
 
@@ -1216,7 +1292,7 @@ body::before {
 }
 
 .lang-select select:hover {
-  border-color: #9146ff;
+  border-color: var(--accent-color);
 }
 
 .lang-select {
@@ -1230,7 +1306,7 @@ body::before {
   top: 50%;
   transform: translateY(-50%);
   font-size: 9px;
-  color: #9146ff;
+  color: var(--accent-color);
   pointer-events: none;
 }
 
@@ -1261,7 +1337,7 @@ body::before {
 }
 
 .lang-select:hover {
-  border-color: #9146ff;
+  border-color: var(--accent-color);
 }
 
 .settings-btn {
@@ -1281,7 +1357,7 @@ body::before {
 }
 
 .settings-btn:hover {
-  border-color: #9146ff;
+  border-color: var(--accent-color);
 }
 
 .language-dropdown {
@@ -1875,7 +1951,7 @@ body.stream-mode .participant {
   right: 20px;
   width: 280px;
   background: #111;
-  border: 1px solid #9146ff;
+  border: 1px solid var(--accent-color);
   border-radius: 14px;
   padding: 16px;
   z-index: 9999;
@@ -1887,7 +1963,7 @@ body.stream-mode .participant {
   font-weight: 700;
   margin-bottom: 12px;
   letter-spacing: 1px;
-  color: #9146ff;
+  color: var(--accent-color);
 }
 
 .debug-body {
@@ -1900,7 +1976,7 @@ body.stream-mode .participant {
   position: fixed;
   top: 8px;
   left: 8px;
-  background: #9146ff;
+  background: var(--accent-color);
   padding: 4px 10px;
   border-radius: 8px;
   font-size: 11px;
@@ -1920,4 +1996,432 @@ body.stream-mode .participant {
   box-shadow: 0 0 15px rgba(47,255,135,0.4);
   transform: scale(1.05);
   transition: all 0.25s ease;
+}
+/* Theme bindings */
+body{
+ background:var(--bg-primary);
+ color:var(--text-primary);
+}
+
+button{
+ background:var(--button-bg);
+ border:1px solid var(--border-color);
+ color:var(--text-primary);
+}
+
+button:hover{
+ background:var(--button-hover);
+ box-shadow:0 0 10px var(--accent-glow);
+}
+
+.settings-divider,
+.divider{
+ border-color:var(--divider-color);
+}
+
+::-webkit-scrollbar-thumb{
+ background:var(--scrollbar-color);
+}
+
+input[type="range"]::-webkit-slider-thumb{
+ background:var(--slider-color);
+}
+
+
+
+
+/* =====================================================
+   FEATURE: New Participant Highlight
+===================================================== */
+.participant-new{
+  animation: participantHighlight 1s ease;
+}
+
+@keyframes participantHighlight{
+  0%{ background: rgba(145,70,255,0.35); }
+  100%{ background: transparent; }
+}
+
+/* =====================================================
+   FEATURE: Winner Glow Enhancement
+===================================================== */
+.roulette-item.winner-highlight{
+  animation: winnerPulse 1.5s infinite;
+}
+
+@keyframes winnerPulse{
+  0%{ box-shadow:0 0 10px rgba(145,70,255,0.4); }
+  50%{ box-shadow:0 0 25px rgba(145,70,255,0.8); }
+  100%{ box-shadow:0 0 10px rgba(145,70,255,0.4); }
+}
+
+
+
+
+
+
+/* =====================================================
+   RESET BUTTON CONSISTENCY PATCH
+===================================================== */
+.reset-btn{
+ padding:14px 55px;
+ border-radius:10px;
+ border:1px solid #2a2a2a;
+ background: linear-gradient(145deg, #1f1f1f, var(--panel-bg));
+ color:white;
+ font-size:16px;
+ font-weight:600;
+ cursor:pointer;
+ transition:all 0.25s ease;
+}
+
+.reset-btn:hover{
+ background: linear-gradient(145deg, #232323, #181818);
+ box-shadow:0 0 20px rgba(145,70,255,0.2);
+ transform:translateY(-1px);
+}
+
+
+/* ================= SETTINGS PROFESSIONAL LAYOUT ================= */
+
+#settingsView{
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding-top:40px;
+}
+
+.settings-container{
+  width:100%;
+  max-width:1200px;
+  padding:40px 50px;
+  border-radius:18px;
+  background:var(--panel-bg);
+  border:1px solid var(--border-color);
+  box-shadow:0 20px 80px rgba(0,0,0,0.7);
+}
+
+.settings-form{
+display:flex;
+flex-direction:column;
+gap:35px;
+}
+
+.settings-section{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px 30px;
+margin-top:10px;
+}
+
+.settings-section h3{
+grid-column:1 / span 2;
+margin-bottom:5px;
+font-size:16px;
+font-weight:700;
+}
+
+.settings-test-section{
+grid-column:1 / span 2;
+display:flex;
+gap:12px;
+margin-top:10px;
+}
+
+.form-group:has(#discordLiveWebhookInput),
+.form-group:has(#discordPrizeWebhookInput){
+grid-column:auto;
+}
+
+.theme-editor{
+grid-column:1 / span 2;
+}
+
+.settings-actions{
+display:flex;
+justify-content:center;
+gap:20px;
+margin-top:40px;
+}
+
+/* make theme editor full width */
+.theme-editor{
+  grid-column:1 / span 2;
+  margin-top:10px;
+  padding:25px;
+  border-radius:14px;
+  border:1px solid var(--border-color);
+  background:rgba(255,255,255,0.02);
+}
+
+.theme-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:10px 0;
+}
+
+.theme-row input{
+  width:160px;
+  height:32px;
+  border-radius:8px;
+  border:1px solid var(--border-color);
+  background:var(--bg-primary);
+}
+
+/* theme preset buttons */
+.theme-presets{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+
+.theme-presets button{
+  padding:6px 10px;
+  font-size:12px;
+  border-radius:6px;
+  border:1px solid var(--border-color);
+  background:var(--bg-primary);
+  color:var(--text-primary);
+  cursor:pointer;
+}
+
+.theme-presets button:hover{
+  border-color:var(--accent-color);
+  box-shadow:0 0 10px var(--accent-color);
+}
+
+
+/* ================= BUTTON SYSTEM ================= */
+
+.primary-btn,
+.secondary-btn{
+  padding:14px 40px;
+  border-radius:12px;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .25s ease;
+  border:1px solid var(--border-color);
+}
+
+.primary-btn{
+  background:linear-gradient(145deg,var(--button-bg),var(--panel-bg));
+  color:var(--text-primary);
+}
+
+.secondary-btn{
+  background:transparent;
+  color:var(--text-secondary);
+}
+
+.primary-btn:hover,
+.secondary-btn:hover{
+  border-color:var(--accent-color);
+  box-shadow:0 0 20px var(--accent-color);
+  transform:translateY(-2px);
+}
+
+.settings-actions{
+  grid-column:1 / span 2;
+  display:flex;
+  justify-content:center;
+  gap:20px;
+  margin-top:30px;
+}
+
+
+/* ================= THEME GLOW FIX ================= */
+
+.primary-btn:hover,
+.secondary-btn:hover,
+.settings-btn:hover{
+  box-shadow:0 0 18px var(--accent-color);
+}
+
+.panel-title::after{
+  background:linear-gradient(
+    90deg,
+    var(--accent-color),
+    var(--accent-highlight)
+  );
+}
+
+.roulette-container::after{
+  box-shadow:0 0 16px var(--accent-color);
+}
+
+
+/* =====================================================
+   SETTINGS PROFESSIONAL ORDER FIX
+   Clean aligned layout for configuration panel
+===================================================== */
+
+.settings-form{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:26px 40px;
+  align-items:start;
+}
+
+/* section containers */
+.settings-section{
+  grid-column:1 / span 2;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px 30px;
+  margin-top:10px;
+}
+
+/* section titles */
+.settings-section h3{
+  grid-column:1 / span 2;
+  font-size:16px;
+  font-weight:700;
+  margin-bottom:4px;
+}
+
+/* OAuth always full width */
+.form-group.oauth{
+  grid-column:1 / span 2;
+}
+
+/* API test buttons aligned right */
+.settings-test-section{
+  grid-column:2;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:4px;
+}
+
+/* Discord webhooks side by side */
+.form-group.discord-live{
+  grid-column:1;
+}
+
+.form-group.discord-prize{
+  grid-column:2;
+}
+
+/* Theme editor panel */
+.theme-editor{
+  grid-column:1 / span 2;
+  padding:26px;
+  border-radius:14px;
+  border:1px solid var(--border-color);
+  background:rgba(255,255,255,0.02);
+}
+
+/* theme rows alignment */
+.theme-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+}
+
+/* preset layout */
+.theme-presets{
+  margin-top:12px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+/* bottom actions */
+.settings-actions{
+  grid-column:1 / span 2;
+  display:flex;
+  justify-content:center;
+  gap:20px;
+  margin-top:30px;
+}
+
+
+/* =====================================================
+   THEME EDITOR PROFESSIONAL FIX
+   Clean layout + toggle + presets alignment
+===================================================== */
+
+/* Toggle container */
+#themeEditorContent{
+  display:none;
+}
+
+.theme-editor.open #themeEditorContent{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  margin-top:15px;
+}
+
+/* Theme editor container */
+.theme-editor{
+  grid-column:1 / span 2;
+  padding:24px;
+  border-radius:14px;
+  border:1px solid var(--border-color);
+  background:rgba(255,255,255,0.02);
+}
+
+/* Toggle header */
+.theme-toggle{
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+/* Rows */
+.theme-row{
+  display:grid;
+  grid-template-columns:120px 1fr;
+  align-items:center;
+  gap:14px;
+}
+
+/* Labels */
+.theme-row label{
+  font-size:13px;
+  opacity:.75;
+}
+
+/* Color inputs */
+.theme-row input[type="color"]{
+  width:100%;
+  height:32px;
+  border-radius:8px;
+  border:1px solid var(--border-color);
+  background:var(--bg-primary);
+  cursor:pointer;
+}
+
+/* Presets container */
+.theme-presets{
+  margin-top:10px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+/* Preset buttons */
+.theme-presets button{
+  padding:6px 12px;
+  font-size:12px;
+  border-radius:6px;
+  border:1px solid var(--border-color);
+  background:var(--bg-primary);
+  color:var(--text-primary);
+  cursor:pointer;
+  transition:.2s;
+}
+
+/* Hover */
+.theme-presets button:hover{
+  border-color:var(--accent-color);
+  box-shadow:0 0 10px var(--accent-color);
 }

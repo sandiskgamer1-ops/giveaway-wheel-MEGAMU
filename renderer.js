@@ -1,3 +1,205 @@
+
+/**
+ * applyTheme()
+ * Applies theme values to CSS variables so the UI updates instantly.
+ */
+function applyTheme(theme){
+
+  if(!theme) return;
+
+  const root = document.documentElement;
+
+  root.style.setProperty("--accent-color", theme.accent || "#9146ff");
+  root.style.setProperty("--accent-glow", theme.accent || "#9146ff");
+
+  root.style.setProperty("--bg-primary", theme.background || "#0f0f0f");
+  root.style.setProperty("--panel-bg", theme.panel || "#141414");
+
+  root.style.setProperty("--text-primary", theme.text || "#ffffff");
+
+  root.style.setProperty("--accent-highlight", theme.highlight || theme.accent);
+
+  root.style.setProperty("--roulette-glow",(theme.accent || "#9146ff")+"66");
+}
+
+function applyPresetTheme(name){
+
+  const presets = {
+
+    cyberpunk:{
+      accent:"#ff2fd1",
+      background:"#0a0a0f",
+      panel:"#11111a",
+      text:"#ffffff",
+      highlight:"#00eaff"
+    },
+
+    gold:{
+      accent:"#d4af37",
+      background:"#0f0f0f",
+      panel:"#141414",
+      text:"#ffffff",
+      highlight:"#ffd700"
+    },
+
+    emerald:{
+      accent:"#2ecc71",
+      background:"#0f1110",
+      panel:"#141a14",
+      text:"#ffffff",
+      highlight:"#2ecc71"
+    },
+
+    ruby:{
+      accent:"#e63946",
+      background:"#0f0a0a",
+      panel:"#1a1111",
+      text:"#ffffff",
+      highlight:"#ff4d5a"
+    },
+
+    ocean:{
+      accent:"#00b4d8",
+      background:"#0a0f14",
+      panel:"#101820",
+      text:"#ffffff",
+      highlight:"#48cae4"
+    },
+
+    neon:{
+      accent:"#39ff14",
+      background:"#050505",
+      panel:"#0c0c0c",
+      text:"#ffffff",
+      highlight:"#39ff14"
+    },
+
+    solar:{
+      accent:"#ff9f1c",
+      background:"#0f0c08",
+      panel:"#19130d",
+      text:"#ffffff",
+      highlight:"#ffd166"
+    },
+
+    matrix:{
+      accent:"#00ff41",
+      background:"#020402",
+      panel:"#051105",
+      text:"#d4ffd4",
+      highlight:"#00ff41"
+    },
+
+    sunset:{
+      accent:"#ff6b6b",
+      background:"#140a0a",
+      panel:"#1c1111",
+      text:"#ffffff",
+      highlight:"#ffa07a"
+    },
+
+    midnight:{
+      accent:"#6c63ff",
+      background:"#0a0a12",
+      panel:"#12121c",
+      text:"#ffffff",
+      highlight:"#8f8aff"
+    },
+
+    sakura:{
+      accent:"#ff77aa",
+      background:"#140b10",
+      panel:"#1c1116",
+      text:"#ffffff",
+      highlight:"#ffb7d5"
+    },
+
+    ice:{
+      accent:"#7dd3fc",
+      background:"#0a0f14",
+      panel:"#101820",
+      text:"#ffffff",
+      highlight:"#bfe9ff"
+    }
+
+  };
+
+  const preset = presets[name];
+  if(!preset) return;
+
+  config.theme = preset;
+
+  applyTheme(preset);
+}
+
+
+function initThemeEditor(){
+
+  const accent = document.getElementById("themeAccent");
+  const bg = document.getElementById("themeBackground");
+  const panel = document.getElementById("themePanel");
+  const text = document.getElementById("themeText");
+  const highlight = document.getElementById("themeHighlight");
+
+  if(!accent) return;
+
+  function update(){
+
+    config.theme = {
+      accent: accent.value,
+      background: bg.value,
+      panel: panel.value,
+      text: text.value,
+      highlight: highlight.value
+    };
+
+    applyTheme(config.theme);
+    saveTheme();
+  }
+
+  accent.addEventListener("input",update);
+  bg.addEventListener("input",update);
+  panel.addEventListener("input",update);
+  text.addEventListener("input",update);
+  highlight.addEventListener("input",update);
+}
+
+
+function toggleThemeEditor(){
+
+  const el =
+    document.getElementById("themeEditorContent");
+
+  if(!el) return;
+
+  if(el.style.display === "none" || el.style.display === ""){
+    el.style.display = "block";
+  }else{
+    el.style.display = "none";
+  }
+
+}
+
+/**
+ * saveTheme()
+ * Persists theme settings to config.json
+ */
+function saveTheme(){
+
+  const fs = require("fs");
+  const path = require("path");
+
+  try{
+    fs.writeFileSync(
+      path.join(userPath,"config.json"),
+      JSON.stringify(config,null,2)
+    );
+  }catch(err){
+    console.error("Theme save error:",err);
+  }
+}
+
+
 /**
  * renderer.js (PRO STREAM SAFE)
  * Fixes applied:
@@ -10,7 +212,7 @@
 const { ipcRenderer } = require("electron");
 
 /* =====================================================
-   DEBUG PANEL CONTROL (IPC FROM MAIN)
+   "+(translations.get("debug_panel","Debug Panel"))+" CONTROL (IPC FROM MAIN)
 =====================================================*/
 
 let DEBUG_PANEL_ACTIVE = false;
@@ -194,9 +396,7 @@ async function loadAwards() {
 
   } catch (err) {
     console.error(
-      "Error cargando premios:",
-      err
-    );
+(translations["awards_load_error"] || "Error loading prizes") + ":",err);
   }
 }
 
@@ -233,13 +433,22 @@ function setLiveStatus(isConnected){
   if(!liveBtn) return;
 
   if(isConnected){
+
     liveBtn.classList.remove("live-idle");
     liveBtn.classList.add("live-active");
-    liveBtn.innerHTML = '<span class="live-dot"></span> EN VIVO';
+
+    liveBtn.innerHTML =
+      '<span class="live-dot"></span> ' +
+      (translations["live"] || "Live");
+
   }else{
+
     liveBtn.classList.remove("live-active");
     liveBtn.classList.add("live-idle");
-    liveBtn.innerHTML = '<span class="live-dot"></span> OFFLINE';
+
+    liveBtn.innerHTML =
+      '<span class="live-dot"></span> ' +
+      (translations["offline"] || "Offline");
   }
 }
 
@@ -339,7 +548,7 @@ function connectTwitch() {
   };
 
   socket.onclose = () => {
-    console.log("⚠ Twitch desconectado");
+    console.log("⚠ " + (translations["twitch_disconnected"] || "Twitch disconnected"));
     setLiveStatus(false);
   };
 }
@@ -768,7 +977,10 @@ function startPrizeRoulette() {
 
     const prize = awards[0];
 
-    console.log("Solo queda 1 premio → skip animación");
+    console.log(
+  (translations["single_prize"] || "Only one prize left") +
+  " → skip animación"
+);
 
     const container =
       document.getElementById("winnerName");
@@ -778,7 +990,7 @@ function startPrizeRoulette() {
       setHTML(container, `
         <div class="winner-box">
           <div class="winner-title">
-            Último premio disponible
+            ${translations["last_prize"] || "Last prize available"}
           </div>
           <div class="winner-prize">
             ${prize.name}
@@ -1219,7 +1431,11 @@ function sendChatMessage(message) {
 
 (async () => {
 
-  await loadConfig(); // 🔥 SIEMPRE PRIMERO
+  await loadConfig();
+
+  if(config.theme){
+    applyTheme(config.theme);
+  } // 🔥 SIEMPRE PRIMERO
 
   const historyPath =
     path.join(userPath,"history.json");
@@ -1250,6 +1466,7 @@ function sendChatMessage(message) {
 })();
 
 document.addEventListener("DOMContentLoaded", async () => {
+  initThemeEditor();
 
   // ===============================
   // WINDOW CONTROLS
@@ -2007,7 +2224,9 @@ function stopConfetti(){
 =====================================================*/
 
 function buildLiveMessage(){
-  return `🔴 EN VIVO\nCanal: ${config.channel}\nComando: ${config.command}`;
+  return `🔴 ${translations["live"] || "Live"}
+Canal: ${config.channel}
+Comando: ${config.command}`;
 }
 
 function buildPrizeMessage(){
@@ -2031,7 +2250,7 @@ async function sendDiscord(type){
   if(type === "live"){
 
     embed = {
-      title: "🔴 ¡Estamos EN VIVO!",
+      title: "🔴 ¡Estamos "+(translations["live"]||"Live")+"!",
       description: `El stream ha comenzado.`,
       color: 16711680, // rojo
       fields: [
@@ -2133,7 +2352,9 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(liveActive){
       liveBtn.classList.remove("live-idle");
       liveBtn.classList.add("live-active");
-      liveBtn.innerHTML = '<span class="live-dot"></span> EN VIVO';
+      liveBtn.innerHTML =
+  '<span class="live-dot"></span> ' +
+  (translations["live"] || "Live");
     }else{
       liveBtn.classList.remove("live-active");
       liveBtn.classList.add("live-idle");
@@ -2318,7 +2539,7 @@ function startPrizeRoulette() {
 }
 
 /* =====================================================
-   DEBUG PANEL ACTIONS
+   "+(translations.get("debug_panel","Debug Panel"))+" ACTIONS
 =====================================================*/
 
 function initDebugPanel(){
@@ -2403,3 +2624,164 @@ function initDebugPanel(){
 
 // Ejecutar inmediatamente
 document.addEventListener("DOMContentLoaded", initDebugPanel);
+/* =====================================================
+   FEATURE: Extended Theme Presets
+===================================================== */
+
+function applyPresetTheme(name){
+
+ const presets={
+
+  twitch:{
+   accent:"#9146ff",
+   background:"#0f0f0f",
+   panel:"#141414",
+   text:"#ffffff",
+   highlight:"#a970ff"
+  },
+
+  cyberpunk:{
+   accent:"#ff2fd1",
+   background:"#050505",
+   panel:"#111111",
+   text:"#ffffff",
+   highlight:"#00ffff"
+  },
+
+  gold:{
+   accent:"#d4af37",
+   background:"#0b0b0b",
+   panel:"#141414",
+   text:"#ffffff",
+   highlight:"#ffd700"
+  },
+
+  emerald:{
+   accent:"#00c896",
+   background:"#0b0b0b",
+   panel:"#121212",
+   text:"#ffffff",
+   highlight:"#00ffc3"
+  },
+
+  ruby:{
+   accent:"#ff003c",
+   background:"#0b0b0b",
+   panel:"#121212",
+   text:"#ffffff",
+   highlight:"#ff335f"
+  },
+
+  ocean:{
+   accent:"#1da1f2",
+   background:"#0f1115",
+   panel:"#12151a",
+   text:"#ffffff",
+   highlight:"#3ec5ff"
+  },
+
+  neon:{
+   accent:"#8a2be2",
+   background:"#0c0c0c",
+   panel:"#111111",
+   text:"#ffffff",
+   highlight:"#c77dff"
+  },
+
+  solar:{
+   accent:"#ffb703",
+   background:"#111111",
+   panel:"#141414",
+   text:"#ffffff",
+   highlight:"#ffd166"
+  },
+
+  matrix:{
+   accent:"#00ff88",
+   background:"#050505",
+   panel:"#0a0a0a",
+   text:"#ffffff",
+   highlight:"#00ff88"
+  },
+
+  sunset:{
+   accent:"#ff6b35",
+   background:"#121212",
+   panel:"#161616",
+   text:"#ffffff",
+   highlight:"#ff9e64"
+  },
+
+  midnight:{
+   accent:"#5c6bc0",
+   background:"#0a0a0a",
+   panel:"#111111",
+   text:"#ffffff",
+   highlight:"#7986cb"
+  },
+
+  sakura:{
+   accent:"#ff77a9",
+   background:"#121212",
+   panel:"#161616",
+   text:"#ffffff",
+   highlight:"#ff9cc2"
+  },
+
+  ice:{
+   accent:"#6ee7ff",
+   background:"#0c1114",
+   panel:"#11181c",
+   text:"#ffffff",
+   highlight:"#aaf3ff"
+  }
+
+ };
+
+ const theme=presets[name];
+ if(!theme) return;
+
+ config.theme={...theme};
+ applyTheme(config.theme);
+
+}
+
+
+
+/* =====================================================
+   FEATURE: Theme Editor Live Update
+   Description:
+   Apply theme immediately when color inputs change.
+===================================================== */
+function initThemeEditor(){
+
+  const accent=document.getElementById("themeAccent");
+  const bg=document.getElementById("themeBackground");
+  const panel=document.getElementById("themePanel");
+  const text=document.getElementById("themeText");
+  const highlight=document.getElementById("themeHighlight");
+
+  const inputs=[accent,bg,panel,text,highlight];
+
+  inputs.forEach(inp=>{
+    if(!inp) return;
+
+    inp.addEventListener("input",()=>{
+
+      config.theme=config.theme||{};
+
+      config.theme.accent=accent?.value;
+      config.theme.background=bg?.value;
+      config.theme.panel=panel?.value;
+      config.theme.text=text?.value;
+      config.theme.highlight=highlight?.value;
+
+      applyTheme(config.theme);
+    });
+  });
+
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  initThemeEditor();
+});

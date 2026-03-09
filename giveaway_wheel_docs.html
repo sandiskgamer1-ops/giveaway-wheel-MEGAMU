@@ -1,0 +1,487 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Completa Giveaway Wheel</title>
+
+<style>
+
+:root{
+--bg:#0b1220;
+--card:#121a2c;
+--text:#e5e7eb;
+--accent:#3b82f6;
+--muted:#94a3b8;
+}
+
+body{
+margin:0;
+font-family:Segoe UI,Arial;
+background:var(--bg);
+color:var(--text);
+display:flex;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+width:250px;
+background:#020617;
+height:100vh;
+position:fixed;
+overflow:auto;
+padding:20px;
+border-right:1px solid #1f2937;
+}
+
+.sidebar h2{
+margin-top:0;
+}
+
+.sidebar a{
+display:block;
+padding:8px;
+text-decoration:none;
+color:#93c5fd;
+border-radius:6px;
+font-size:14px;
+}
+
+.sidebar a:hover{
+background:#111827;
+}
+
+/* MAIN */
+
+.main{
+margin-left:260px;
+padding:40px;
+max-width:1100px;
+}
+
+/* CARDS */
+
+.card{
+background:var(--card);
+padding:32px;
+border-radius:14px;
+margin-bottom:28px;
+box-shadow:0 0 25px rgba(0,0,0,.35);
+}
+
+.card h2{
+margin-top:0;
+color:#60a5fa;
+margin-bottom:14px;
+}
+
+/* GALLERY */
+
+.gallery{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:22px;
+margin-top:20px;
+}
+
+.gallery img{
+width:100%;
+border-radius:10px;
+cursor:pointer;
+transition:.25s;
+box-shadow:0 10px 25px rgba(0,0,0,.4);
+}
+
+.gallery img:hover{
+transform:scale(1.04);
+}
+
+/* MODAL */
+
+.modal{
+display:none;
+position:fixed;
+z-index:999;
+left:0;
+top:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.9);
+justify-content:center;
+align-items:center;
+}
+
+.modal img{
+max-width:90%;
+max-height:90%;
+border-radius:10px;
+}
+
+/* TOGGLE */
+
+details{
+margin-top:16px;
+background:#0b162c;
+padding:18px;
+border-radius:10px;
+border:1px solid #1f2937;
+}
+
+summary{
+cursor:pointer;
+font-weight:600;
+font-size:15px;
+}
+
+summary::after{
+content:" ▼";
+color:#93c5fd;
+font-size:12px;
+}
+
+details[open] summary::after{
+content:" ▲";
+}
+
+/* LIST STEPS */
+
+ol{
+margin-top:16px;
+padding-left:22px;
+}
+
+ol li{
+margin-bottom:14px;
+line-height:1.6;
+}
+
+/* CODE BLOCK */
+
+.code{
+background:#020617;
+padding:12px;
+border-radius:8px;
+margin-top:10px;
+font-family:monospace;
+}
+
+/* TABLE */
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:16px;
+}
+
+td,th{
+border:1px solid #1f2937;
+padding:10px;
+}
+
+th{
+background:#020617;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<h2>📘 Docs</h2>
+
+<a href="#intro">Introducción</a>
+<a href="#galeria">Galería</a>
+<a href="#config">Configuración</a>
+<a href="#twitch">Twitch</a>
+<a href="#api">API MegaMU</a>
+<a href="#discord">Discord Webhooks</a>
+<a href="#debug">Debug Panel</a>
+<a href="#flujo">Flujo del sorteo</a>
+
+</div>
+
+<div class="main">
+
+<div class="card" id="intro">
+
+<h2>Introducción</h2>
+
+<p>
+Giveaway Wheel es una aplicación diseñada para gestionar sorteos durante streams.
+Permite registrar participantes desde el chat de Twitch, seleccionar ganadores mediante
+una ruleta visual y asignar premios obtenidos desde la API de MegaMU.
+</p>
+
+</div>
+
+<div class="card" id="galeria">
+
+<h2>Galería de la aplicación</h2>
+
+<p>Haz click en una imagen para verla ampliada.</p>
+
+<div class="gallery">
+
+<img src="https://i.imgur.com/oIau4TL.png">
+<img src="https://i.imgur.com/m32EKku.png">
+<img src="https://i.imgur.com/UnC1vxZ.png">
+
+</div>
+
+</div>
+
+<div class="card" id="config">
+
+<h2>Configuración inicial</h2>
+
+<details>
+<summary>Pasos para configurar la aplicación</summary>
+
+<ol>
+
+<li>Configurar el <b>OAuth de Twitch</b>.</li>
+
+<li>Introducir el <b>nombre del canal</b> donde se realizará el sorteo.</li>
+
+<li>Definir el <b>comando de participación</b> (por ejemplo <b>!join</b>).</li>
+
+<li>Configurar la <b>API de MegaMU</b> introduciendo DV y API Key.</li>
+
+<li>Configurar los <b>Webhooks de Discord</b> para anunciar sorteos.</li>
+
+</ol>
+
+</details>
+
+</div>
+
+<div class="card" id="twitch">
+
+<h2>Configuración de Twitch</h2>
+
+<details>
+<summary>Cómo obtener el OAuth</summary>
+
+<ol>
+
+<li>Ir a <b>https://twitchtokengenerator.com</b>.</li>
+
+<li>Seleccionar <b>Chat Bot Token</b>.</li>
+
+<li>Autorizar tu cuenta de Twitch.</li>
+
+<li>Copiar el OAuth generado.</li>
+
+</ol>
+
+<div class="code">
+oauth:xxxxxxxxxxxxxxxxxxxxxxxx
+</div>
+
+</details>
+
+</div>
+
+<div class="card" id="api">
+
+<h2>Configuración API MegaMU</h2>
+
+<details open>
+<summary>Cómo configurar la API de MegaMU</summary>
+
+<p>Para conectar la aplicación con MegaMU necesitas generar una <b>API Key</b> desde el panel del servidor.</p>
+
+<div class="code">1️⃣ Entra en tu cuenta:
+https://megamu.net</div>
+
+<div class="code">2️⃣ Abre el DV Panel</div>
+
+<div class="code">3️⃣ Ve a la pestaña API</div>
+
+<div class="code">4️⃣ Pulsa Generate New Key</div>
+
+<div class="code">5️⃣ Copia la clave generada</div>
+
+<p>Pegar la clave generada en el campo:</p>
+
+<div class="code">
+API Key (MU)
+</div>
+
+<p>También deberás introducir el valor:</p>
+
+<div class="code">
+DV (es exactamente tu ID de login para entrar en la pagina de megamu)
+</div>
+
+<p>La aplicación utiliza esta API para obtener los premios disponibles mediante:</p>
+
+<div class="code">
+dvapi.php?action=getawards
+</div>
+
+</details>
+
+</div>
+
+<div class="card" id="discord">
+
+<h2>Discord Webhooks</h2>
+
+<details>
+<summary>Cómo crear un webhook</summary>
+
+<ol>
+
+<li>Abrir Discord.</li>
+
+<li>Ir a <b>Configuración del servidor</b>.</li>
+
+<li>Entrar en <b>Integraciones</b>.</li>
+
+<li>Seleccionar <b>Webhooks</b>.</li>
+
+<li>Pulsar <b>Crear Webhook</b>.</li>
+
+<li>Copiar la URL generada.</li>
+
+</ol>
+
+<div class="code">
+https://discord.com/api/webhooks/XXXX/XXXX
+</div>
+
+</details>
+
+<details>
+<summary>Tipos de Webhooks usados por la app</summary>
+
+<table>
+
+<tr>
+<th>Tipo</th>
+<th>Descripción</th>
+</tr>
+
+<tr>
+<td>Live Webhook</td>
+<td>Avisa cuando el stream está en vivo.</td>
+</tr>
+
+<tr>
+<td>Prize Webhook</td>
+<td>Anuncia un nuevo sorteo y los premios disponibles.</td>
+</tr>
+
+</table>
+
+</details>
+
+</div>
+
+<div class="card" id="debug">
+
+<h2>Debug Panel</h2>
+
+<details>
+<summary>Cómo abrir el panel</summary>
+
+<p>Dentro de la aplicación pulsa:</p>
+
+<div class="code">
+F12
+</div>
+
+</details>
+
+<details>
+<summary>Funciones disponibles</summary>
+
+<table>
+
+<tr>
+<th>Función</th>
+<th>Descripción</th>
+</tr>
+
+<tr>
+<td>Crear usuarios falsos</td>
+<td>Genera participantes para pruebas.</td>
+</tr>
+
+<tr>
+<td>Simular comando</td>
+<td>Simula que un usuario escribió !join.</td>
+</tr>
+
+<tr>
+<td>Forzar ganador</td>
+<td>Selecciona manualmente un ganador.</td>
+</tr>
+
+<tr>
+<td>Reset cooldown Discord</td>
+<td>Permite reenviar webhooks.</td>
+</tr>
+
+</table>
+
+</details>
+
+</div>
+
+<div class="card" id="flujo">
+
+<h2>Flujo del sorteo</h2>
+
+<ol>
+
+<li>Un usuario escribe <b>!join</b> en el chat.</li>
+
+<li>El usuario se añade a la lista de participantes.</li>
+
+<li>El streamer pulsa <b>Sortear</b>.</li>
+
+<li>La ruleta selecciona un ganador.</li>
+
+<li>El ganador confirma en el chat.</li>
+
+<li>Se realiza el sorteo del premio.</li>
+
+<li>El resultado se guarda en el historial.</li>
+
+</ol>
+
+</div>
+
+</div>
+
+<div id="imgModal" class="modal" onclick="closeModal()">
+<img id="modalImg">
+</div>
+
+<script>
+
+const images=document.querySelectorAll(".gallery img");
+const modal=document.getElementById("imgModal");
+const modalImg=document.getElementById("modalImg");
+
+images.forEach(img=>{
+img.onclick=()=>{
+modal.style.display="flex";
+modalImg.src=img.src;
+}
+})
+
+function closeModal(){
+modal.style.display="none";
+}
+
+</script>
+
+</body>
+</html>

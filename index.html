@@ -44,7 +44,7 @@ DEBUG MODE
 <div class="titlebar">
 
 <div class="titlebar-left">
-Giveaway Wheel
+<span data-i18n="app_title"></span>
 </div>
 
 <div class="titlebar-right">
@@ -89,16 +89,16 @@ Giveaway Wheel
 
   
   <button id="liveBtn" class="header-btn live-idle no-drag">
-  <span class="live-dot"></span> Live
+  <span class="live-dot"></span> <span data-i18n="live"></span>
 </button>
   <button id="announceBtn" class="header-btn announce-btn no-drag">
-  🎁 Anunciar Sorteo
+  🎁 <span data-i18n="announce_giveaway"></span>
 </button>
 
   <!-- STREAM MODE -->
   <button id="streamModeBtn"
           class="stream-toggle no-drag">
-    🖥 Normal Mode
+    🖥 <span data-i18n="normal_mode">Normal Mode</span>
   </button>
 
   <!-- SETTINGS -->
@@ -207,34 +207,30 @@ class="awards-list"></div>
 </div>
 </div>
 
+
 <!-- ================= SETTINGS ================= -->
 <div id="settingsView" class="view">
 
 <div class="settings-container">
 
 <div class="settings-header">
-<h2 data-i18n="settings">
-Configuración
-</h2>
+<h2 data-i18n="settings">Configuración</h2>
 </div>
 
 <div class="settings-form">
 
-<div class="form-group">
-  <label>OAuth Twitch</label>
+<!-- ================= TWITCH ================= -->
 
-  <div class="password-wrapper">
-    <input id="oauthInput" type="password">
+<div class="settings-section">
 
-    <button
-      type="button"
-      class="toggle-password"
-      data-target="oauthInput"
-      data-i18n="show">
-      👁
-    </button>
-  </div>
+<h3>Twitch</h3>
 
+<div class="form-group oauth">
+<label>OAuth Twitch</label>
+<div class="password-wrapper">
+<input id="oauthInput" type="password">
+<button type="button" class="toggle-password" data-target="oauthInput">👁</button>
+</div>
 </div>
 
 <div class="form-group">
@@ -248,97 +244,130 @@ Configuración
 </div>
 
 <div class="form-group">
-  <label>DV</label>
-
-  <div class="password-wrapper">
-    <input id="dvInput" type="password">
-
-    <button
-      type="button"
-      class="toggle-password"
-      data-target="dvInput"
-      data-i18n="show">
-      👁
-    </button>
-  </div>
-
+<label>DV</label>
+<div class="password-wrapper">
+<input id="dvInput" type="password">
+<button type="button" class="toggle-password" data-target="dvInput">👁</button>
+</div>
 </div>
 
 <div class="form-group">
-  <label>API Key</label>
-
-  <div class="password-wrapper">
-    <input id="apiKeyInput" type="password">
-
-    <button
-      type="button"
-      class="toggle-password"
-      data-target="apiKeyInput"
-      data-i18n="show">
-      👁
-    </button>
-  </div>
-
+<label>API Key</label>
+<div class="password-wrapper">
+<input id="apiKeyInput" type="password">
+<button type="button" class="toggle-password" data-target="apiKeyInput">👁</button>
 </div>
-
-<div class="form-group hidden" id="debugToggleContainer">
-<label>
-<input type="checkbox" id="debugModeToggle">
-Activar DEBUG
-</label>
 </div>
-
-<!-- ✅ API TEST RESTAURADO -->
-<div class="settings-divider"></div>
 
 <div class="settings-test-section">
 
-<button id="testTwitch"
-class="secondary-btn">
-Probar API Twitch
+<button id="testTwitch" class="secondary-btn">
+<span data-i18n="test_twitch">Probar API Twitch</span>
 </button>
 
-<button id="testMu"
-class="secondary-btn">
-Probar API MU
+<button id="testMu" class="secondary-btn">
+<span data-i18n="test_mu">Probar API MU</span>
 </button>
 
-<div id="apiStatus"
-class="api-status"></div>
+<div id="apiStatus" class="api-status"></div>
 
 </div>
 
-
-<div class="form-group">
-  <label>Discord Webhook (Live)</label>
-  <input id="discordLiveWebhookInput" type="text">
 </div>
-<div class="form-group">
-<label style="opacity:0.5;font-size:12px;">Discord Webhook (Premios)</label>
+
+<!-- ================= DISCORD ================= -->
+
+<div class="settings-section">
+
+<h3>Discord</h3>
+
+<div class="form-group discord-live">
+<label>Discord Webhook (Live)</label>
+<input id="discordLiveWebhookInput" type="text">
+</div>
+
+<div class="form-group discord-prize">
+<label>Discord Webhook (Premios)</label>
 <input id="discordPrizeWebhookInput" type="text">
 </div>
 
-<div class="settings-divider"></div>
+</div>
 
-<div class="settings-test-section">
-  
+<!-- ================= THEME ================= -->
+
+<div class="settings-section">
+
+<h3 data-i18n="theme"></h3>
+
+<div class="theme-editor">
+
+<div class="theme-toggle" onclick="toggleThemeEditor()">
+<span data-i18n="theme_editor"></span> ▾
+</div>
+
+<div id="themeEditorContent" class="hidden">
+
+<div class="theme-row">
+<label data-i18n="theme_accent"></label>
+<input type="color" id="themeAccent">
+</div>
+
+<div class="theme-row">
+<label data-i18n="theme_background"></label>
+<input type="color" id="themeBackground">
+</div>
+
+<div class="theme-row">
+<label data-i18n="theme_panel"></label>
+<input type="color" id="themePanel">
+</div>
+
+<div class="theme-row">
+<label data-i18n="theme_text"></label>
+<input type="color" id="themeText">
+</div>
+
+<div class="theme-row">
+<label data-i18n="theme_highlight"></label>
+<input type="color" id="themeHighlight">
+</div>
+
+<div class="theme-presets">
+
+<button onclick="applyPresetTheme('cyberpunk')" data-i18n="preset_cyberpunk">Cyberpunk</button>
+<button onclick="applyPresetTheme('gold')" data-i18n="preset_gold">Gold</button>
+<button onclick="applyPresetTheme('emerald')" data-i18n="preset_emerald">Emerald</button>
+<button onclick="applyPresetTheme('ruby')" data-i18n="preset_ruby">Ruby</button>
+<button onclick="applyPresetTheme('ocean')" data-i18n="preset_ocean">Ocean</button>
+<button onclick="applyPresetTheme('neon')" data-i18n="preset_neon">Neon</button>
+<button onclick="applyPresetTheme('solar')" data-i18n="preset_solar">Solar</button>
+<button onclick="applyPresetTheme('matrix')" data-i18n="preset_matrix">Matrix</button>
+<button onclick="applyPresetTheme('sunset')" data-i18n="preset_sunset">Sunset</button>
+<button onclick="applyPresetTheme('midnight')" data-i18n="preset_midnight">Midnight</button>
+<button onclick="applyPresetTheme('sakura')" data-i18n="preset_sakura">Sakura</button>
+<button onclick="applyPresetTheme('ice')" data-i18n="preset_ice">Ice</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
 
 <div class="settings-actions">
 
-<button id="saveSettingsBtn"
-class="primary-btn">
+<button id="saveSettingsBtn" class="primary-btn">
 Guardar
 </button>
 
-<button id="backBtn"
-class="secondary-btn">
+<button id="backBtn" class="secondary-btn">
 Volver
 </button>
 
 </div>
 
 </div>
-
 </div>
 </div>
 
@@ -353,25 +382,25 @@ class="winner-screen hidden">
 Made by - josethemou
 </div>
 
-<!-- ================= DEBUG PANEL ================= -->
+<!-- ================= <span data-i18n="debug_panel"></span> ================= -->
 <div id="debugPanel" class="debug-panel hidden">
 
   <div class="debug-header">
-    DEBUG PANEL
+    <span data-i18n="debug_panel"></span>
   </div>
 
   <div class="debug-body">
  
     <button id="resetCooldownBtn" class="secondary-btn">
-      Reset Discord Cooldowns
+      <span data-i18n="reset_discord"></span>
     </button>
 
     <button id="addDebugUserBtn" class="secondary-btn">
-      Añadir usuario debug
+      <span data-i18n="add_debug_user"></span>
     </button>
 
     <button id="generateFakeUsersBtn" class="secondary-btn">
-      Generar usuarios fake
+      <span data-i18n="generate_fake_users"></span>
     </button>
   </div>
 
